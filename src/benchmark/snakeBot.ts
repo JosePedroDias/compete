@@ -25,6 +25,8 @@ const ws = uwsClient((msg:any) => {
       myId = msg.id;
       console.log(`id:${myId}`);
       break;
+    case 'game-over':
+      break;
     case 'board-init':
       board = new Board(msg.w, msg.h, ' ');
       if (!timer) {
