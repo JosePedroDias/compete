@@ -6,9 +6,9 @@ works ok for array assignments and it's methods push, pop, shift, unshift. suppo
 */
 
 export function trackObject(o: Object) {
-  const yetToSync = new Map<string, any>();
-
   const isArray = o instanceof Array;
+
+  let yetToSync = isArray ? [] : new Map<string, any>();
 
   const SPECIALS = ['push', 'pop', 'shift', 'unshift', 'insertAt', 'removeAt'];
 
@@ -21,7 +21,12 @@ export function trackObject(o: Object) {
       .map((v) => v.sync());
 
     const arr = Array.from(yetToSync);
-    yetToSync.clear();
+
+    if (isArray) {
+      yetToSync = [];
+    } else {
+      (yetToSync as Map<string, any>).clear();
+    }
 
     if (childrenSyncs.length > 0) return { c: childrenSyncs, m: arr };
     return arr;
@@ -64,8 +69,9 @@ export function trackObject(o: Object) {
     }
   }
 
+  // only called for arrays
   function special(methodName: string, v: any, v2:any) {
-    yetToSync.set(methodName, v2 !== undefined ? [v, v2] : v);
+    (yetToSync as any[]).push([methodName, v2 !== undefined ? [v, v2] : v]);
 
     if (methodName === 'insertAt') { // v, v2
       // @ts-ignore
@@ -94,7 +100,10 @@ export function trackObject(o: Object) {
     },
     set(target: any, k, v): boolean {
       if (typeof k === 'string') {
-        if (target[k] !== v) yetToSync.set(k, v);
+        if (target[k] !== v) {
+          if (isArray) (yetToSync as any[]).push([k, v]);
+          else (yetToSync as Map<string, any>).set(k, v);
+        }
         target[k] = v;
         return true;
       }
