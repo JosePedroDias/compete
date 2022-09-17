@@ -12,10 +12,10 @@ const { idToWsInstance, broadcast } = roomWrapper<T3Board>({
     maxPlayers: 2,
     tickRate: 2,
   },
-  onOpen(ws) {
+  onJoin(ws) {
     ws.send({ op: 'my-id', id: ws.id });
   },
-  onClose(ws) {
+  onLeave(ws) {
     broadcast({ op: 'player-left', id: ws.id }, ws as any);
   },
   onGameStart(room: Room): T3Board {

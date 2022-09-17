@@ -2,9 +2,30 @@ import { expect, describe, it } from 'vitest';
 
 import { Card, getDeck, Suit, Rank, Back } from './cards';
 
-it('Card', () => {
-  const c = new Card(Suit.Diamonds, Rank.King, Back.Blue);
-  expect(c.toString()).toEqual('DK');
+describe('card basics', () => {
+  it('ctor', () => {
+    const c = new Card('1234', Back.Blue, Suit.Diamonds, Rank.King);
+    expect(c.toString()).toEqual('DK');
+  });
+
+  it('computed id without initial value', () => {
+    const c = new Card(undefined, Back.Blue);
+    expect(c.toString()).toEqual('BLANK');
+    expect(typeof c.id).toEqual('string');
+  });
+
+  it('forget/recall', () => {
+    const c = new Card(undefined, Back.Blue, Suit.Spades, Rank.Ace);
+    expect(c.toString()).toEqual('SA');
+
+    c.forget();
+    expect(c.toString()).toEqual('BLANK');
+    expect(() => c.forget()).toThrow();
+
+    c.recall();
+    expect(c.toString()).toEqual('SA');
+    expect(() => c.recall()).toThrow();
+  });
 });
 
 describe('getDeck', () => {

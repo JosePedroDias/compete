@@ -35,8 +35,8 @@ participants: Set<WebSocket2>(); // set of players that take part in this game
 ## low level API (uwsWrapper)
 
 ```js
-onOpen?: (ws: WebSocket2) => void;                  // called when player joins the server
-onClose?: (ws: WebSocket2, code: number) => void;   // called when player leaves the server
+onJoin?: (ws: WebSocket2) => void;                  // called when player joins the server
+onLeave?: (ws: WebSocket2, code: number) => void;   // called when player leaves the server
 onMessage?: (ws: WebSocket2, message: any) => void; // receives data from msgpack
 
 // it also exposes additional symbols:
@@ -68,7 +68,7 @@ has some design ideas from nakama (trying to keep an aseptic API) and some from 
 ## sync/patch objects and arrays between server and clients
 
 if you wrap an array or object with trackObject, it will back sure attribute changes (either object attributes or array positions) will get tracked
-and for arrays the most relevant ops are abstracted too (push/pop, shift/unshift, insertAt/removeAt)
+and for arrays the most relevant ops are abstracted too (`push`/`pop`, `shift`/`unshift`, `insertAt`/`removeAt`)
 
 by the time the `.sync()` function is called, all changes since the last sync are given to you to send over the wire and apply with `.patch()`
 
@@ -79,7 +79,7 @@ If one is careful enough to wrap children correctly, this algorithm works well r
 TODO: eventually generalize or just keep as a recipe?
 
 In card games it's very common for players not to be able to know their opposite player hands.
-This card abstraction assumes the card is known at server-side and `.forget()` and `.recover()` is used with the optional `adaptState()` game room wrapper method
+This card abstraction assumes the card is known at server-side and `.forget()` and `.recall()` is used with the optional `adaptState()` game room wrapper method
 to temporarily hide the card value of cards you're not supposed to see.
 
 Take a look at [cards.test.ts](src/generic/cards/cards.test.ts).
@@ -102,6 +102,32 @@ Take a look at [cards.test.ts](src/generic/cards/cards.test.ts).
 
 The games we have here are just exercises to stress the concepts and API, they're not by any means the important part of this repo.
 So far these were started:
-- **tictactoe** - simple, slow 2p game will full state visible by everyone. state diff uses `trackObject` object wrapper.
-- **snake** - faster, 2-n player game with full state visible. again uses `trackObject`
-- **gofish** - 2-n slow player game where state views are personalized. uses `forget()`/`recover()` and `adaptState()`.
+- **tictactoe** - simple, slow 2p game will full state visible by everyone. state diff uses `trackObject` object wrapper. See [T3Board's getBoard()](src/tictactoe/T3Board.ts)
+- **snake** - faster, 2-n player game with full state visible. (Uses [board](src/generic/Board.ts), the initial hand made approach that I later generalized with `trackObject`) TODO: rewrite?
+- **gofish** - 2-n slow player game where state views are personalized. uses `forget()`/`recover()` and `adaptState()`. See [GoFishState's getView()](src/gofish/GoFishState.ts)
+
+
+# local setup
+
+```
+npm install
+
+npm run format
+npm run test
+```
+
+## dev
+
+```
+npm run dev-server-tictactoe
+# or
+npm run dev-server-snake
+# or
+npm run dev-server-gofish
+
+npm run dev
+```
+
+## build
+
+TODO!

@@ -73,7 +73,7 @@ const { idToWsInstance, broadcast } = wrapper({
     maxPayloadLength: 4 * 1024, // bytes?
     idleTimeout: 60, // secs?
   },
-  onOpen(ws: WebSocket2) {
+  onJoin(ws: WebSocket2) {
     ws.send({ op: 'own-id', id: ws.id });
     ws.send({ op: 'board-init', w: W, h: H });
     reset();
@@ -90,7 +90,7 @@ const { idToWsInstance, broadcast } = wrapper({
         console.log(`unsupported opcode: ${data.op}`);
     }
   },
-  onClose(ws: WebSocket2, _code) {
+  onLeave(ws: WebSocket2, _code) {
     removeSnake(ws.id);
   },
 });

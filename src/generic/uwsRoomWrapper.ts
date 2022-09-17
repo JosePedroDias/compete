@@ -10,12 +10,12 @@ export type RoomOpts = {
 
 export type RoomWrapperObj<St> = Omit<
   WrapperObj,
-  'onOpen' | 'onMessage' | 'onClose'
+  'onJoin' | 'onMessage' | 'onLeave'
 > & {
   roomOpts: RoomOpts;
-  onOpen?: (ws: WebSocket2) => void;
+  onJoin?: (ws: WebSocket2) => void;
   //onMessage?: (ws: WebSocket2, message: any) => void;
-  onClose?: (ws: WebSocket2, code: number) => void;
+  onLeave?: (ws: WebSocket2, code: number) => void;
   onGameStart: (room: Room) => St;
   onGameTick: (room: Room, events: Event[], st: St) => St;
   onGameEnd: (room: Room, st: St) => void;
@@ -23,9 +23,9 @@ export type RoomWrapperObj<St> = Omit<
 };
 
 export class Room {
-  hasStarted = false;
   participants = new Set<WebSocket2>();
-  timer?: NodeJS.Timer;
+  hasStarted = false; // internal usage only
+  timer?: NodeJS.Timer; // internal usage only
 }
 
 export type Event = {
@@ -42,9 +42,9 @@ export function roomWrapper<St>({
   appOpts = {},
   wsOpts = {},
   roomOpts = { maxRooms: 1, minPlayers: 1, maxPlayers: 16, tickRate: 10 },
-  onOpen = () => {},
-  onClose = () => {},
+  onJoin = () => {},
   //onMessage = () => {},
+  onLeave = () => {},
   onGameStart,
   onGameTick,
   onGameEnd,
@@ -134,17 +134,17 @@ export function roomWrapper<St>({
     port,
     appOpts,
     wsOpts,
-    onOpen(ws) {
+    onJoin(ws) {
       if (!getRoom(ws)) {
         throw new Error(
           `Server has no capability of spawning more than ${roomOpts.maxRooms} rooms!`,
         );
       }
-      onOpen(ws);
+      onJoin(ws);
     },
-    onClose(ws, code) {
+    onLeave(ws, code) {
       leaveRoom(ws);
-      onClose(ws, code);
+      onLeave(ws, code);
     },
     onMessage(ws, message) {
       const room = idToRoom.get(ws.id);

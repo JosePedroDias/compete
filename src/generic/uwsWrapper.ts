@@ -28,18 +28,18 @@ export type WrapperObj = {
   port?: number;
   appOpts?: AppOpts;
   wsOpts: WSOpts;
-  onOpen: (ws: WebSocket2) => void;
+  onJoin: (ws: WebSocket2) => void;
   onMessage: (ws: WebSocket2, message: any) => void;
-  onClose: (ws: WebSocket2, code: number) => void;
+  onLeave: (ws: WebSocket2, code: number) => void;
 };
 
 export function wrapper({
   port = 9001,
   appOpts = {},
   wsOpts = {},
-  onOpen,
+  onJoin,
   onMessage,
-  onClose,
+  onLeave,
 }: WrapperObj) {
   const _App = appOpts.key_file_name ? SSLApp : App;
 
@@ -72,7 +72,7 @@ export function wrapper({
         idToWsInstance.set(ws.id, ws as any as WebSocket2);
         //console.log(`ws open: ${ws.id}`);
 
-        onOpen(ws as any as WebSocket2);
+        onJoin(ws as any as WebSocket2);
       },
 
       message: (ws: WebSocket, message: any, isBinary: boolean) => {
@@ -91,7 +91,7 @@ export function wrapper({
         idToWsInstance.delete(ws.id);
         //console.log(`ws closed ${ws.id} ok`);
 
-        onClose(ws as any as WebSocket2, code);
+        onLeave(ws as any as WebSocket2, code);
       },
     })
     /* .any('/*', (res, req) => {

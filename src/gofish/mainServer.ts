@@ -12,11 +12,11 @@ const { /*idToWsInstance,*/ broadcast } = roomWrapper<any>({
     maxPlayers: 5,
     tickRate: 2,
   },
-  onOpen(ws) {
+  onJoin(ws) {
     ws.send({ op: 'my-id', id: ws.id });
     broadcast({ op: 'other-id', id: ws.id }, ws as any);
   },
-  onClose(ws) {
+  onLeave(ws) {
     broadcast({ op: 'player-left', id: ws.id }, ws as any);
   },
   adaptState(st, id) {

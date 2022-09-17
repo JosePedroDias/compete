@@ -42,7 +42,7 @@ export function getBasicSetup(participants: number[]): GoFishState {
 export function getView({ stockPile, hands }: GoFishState, id: number) {
   function processCard(c: Card) {
     if (c.rank && c.owner && c.owner !== id) c.forget();
-    if (!c.rank && (!c.owner || c.owner === id)) c.recover();
+    if (!c.rank && (!c.owner || c.owner === id)) c.recall();
   }
 
   for (const c of stockPile) processCard(c);

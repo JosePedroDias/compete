@@ -70,7 +70,7 @@ export class Card {
       this.onUpdate();
     };
 
-    this.recover = function (_suit?: Suit, _rank?: Rank) {
+    this.recall = function (_suit?: Suit, _rank?: Rank) {
       if (this.rank) throw new Error('Card has value value already!');
       this.rank = _rank || rank;
       this.suit = _suit || suit;
@@ -102,7 +102,7 @@ export class Card {
   forget() {}
 
   // this method will be overridden by constructor
-  recover(_suit?: Suit, _rank?: Rank) {}
+  recall(_suit?: Suit, _rank?: Rank) {}
 
   toString() {
     if (!this.rank) return `BLANK`;
@@ -177,7 +177,7 @@ export function face(
     c.setFacingDown(facingDown);
     if (forgetRecover) {
       if (facingDown) c.forget();
-      else c.recover();
+      else c.recall();
     }
   }
 }
