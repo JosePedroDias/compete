@@ -46,6 +46,9 @@ const ws = uwsClient((msg) => {
       myId = msg.id;
       document.title = `id:${myId}`;
       break;
+    case 'player-left':
+      console.warn(`player left: ${msg.id}`);
+      break;
     case 'update-state':
       {
         const diffs = msg.state;

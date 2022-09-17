@@ -48,12 +48,13 @@ export function wrapper({
     return maxId++;
   }
 
-  const idToWsInstance = new Map<number, WebSocket>(); // id -> ws
+  const idToWsInstance = new Map<number, WebSocket2>(); // id -> ws
 
-  function broadcast(msg: any, ignoreMe?: WebSocket) {
+  function broadcast(msg: any, ignoreMe?: WebSocket2) {
     const msgO = pack(msg);
     const wss = Array.from(idToWsInstance.values());
     for (const ws of wss) {
+      // @ts-ignore
       if (ws !== ignoreMe) ws._send(msgO, true);
     }
   }
@@ -68,7 +69,7 @@ export function wrapper({
         ws.send = (data) => ws._send(pack(data), true);
 
         ws.id = getId();
-        idToWsInstance.set(ws.id, ws);
+        idToWsInstance.set(ws.id, ws as any as WebSocket2);
         //console.log(`ws open: ${ws.id}`);
 
         onOpen(ws as any as WebSocket2);

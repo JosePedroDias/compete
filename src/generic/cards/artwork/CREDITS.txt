@@ -1,0 +1,17 @@
+https://www.me.uk/cards/ CC0 / revk
+https://totalnonsense.com/open-source-vector-playing-cards/ LGPL3 / Chris Aguilar
+https://commons.wikimedia.org/wiki/Category:SVG_playing_cards
+backs:
+https://upload.wikimedia.org/wikipedia/commons/d/d4/Card_back_01.svg
+https://upload.wikimedia.org/wikipedia/commons/8/87/Card_back_05.svg
+https://upload.wikimedia.org/wikipedia/commons/3/30/Card_back_05a.svg
+https://upload.wikimedia.org/wikipedia/commons/5/54/Card_back_06.svg
+https://upload.wikimedia.org/wikipedia/commons/6/66/Card_back_15.svg
+https://upload.wikimedia.org/wikipedia/commons/5/52/Card_back_16.svg
+https://upload.wikimedia.org/wikipedia/commons/b/be/Card_back_17.svg
+
+https://upload.wikimedia.org/wikipedia/commons/5/59/Playing_Card_Backs_INKSCAPE_ONLY.v.2.0.svg
+jokers:
+https://upload.wikimedia.org/wikipedia/commons/2/28/Atlas_deck_joker_black.svg
+https://upload.wikimedia.org/wikipedia/commons/a/a7/Atlas_deck_joker_red.svg
+Dmitry Fomin

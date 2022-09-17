@@ -15,9 +15,11 @@ const { idToWsInstance, broadcast } = roomWrapper<T3Board>({
   onOpen(ws) {
     ws.send({ op:'my-id', id:ws.id });
   },
+  onClose(ws) {
+    broadcast({ op:'player-left', id:ws.id }, ws as any);
+  },
   onGameStart(room: Room):T3Board {
     console.log('onGameStart');
-    // @ts-ignore
     const st = getBoard();
     const participants:number[] = Array.from(room.participants).map(ws => ws.id);
     st.nextToPlay.push(participants[0]);
@@ -34,13 +36,11 @@ const { idToWsInstance, broadcast } = roomWrapper<T3Board>({
       const [x, y] = position;
       if (from !== nextId) {
         const message = 'ignoring move (not your turn)';
-        // @ts-ignore
         idToWsInstance.get(from)?.send({ op: 'bad-move', message });
         console.log(message);
       }
       else if (st.getCell(x, y) !== 0) {
         const message = 'ignoring move (cell is not empty)';
-        // @ts-ignore
         idToWsInstance.get(nextId)?.send({ op: 'bad-move', message });
         console.log(message);
       }
@@ -54,12 +54,18 @@ const { idToWsInstance, broadcast } = roomWrapper<T3Board>({
           broadcast({ op: 'announce', message});
           console.log(message);
           st.whoWon = nextId;
-          setTimeout(() => { room.hasStarted = false; }, 50);
+          setTimeout(() => {
+            room.hasStarted = false;
+            // TODO call onGameEnd
+          }, 50);
         } else if (st.isFull()) {
           const message = `board is full!`;
           broadcast({ op: 'announce', message});
           console.log(message);
-          setTimeout(() => { room.hasStarted = false; }, 50);
+          setTimeout(() => {
+            room.hasStarted = false;
+            // TODO call onGameEnd
+          }, 50);
         }
       }
     }
