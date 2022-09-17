@@ -23,7 +23,6 @@ roomWrapper<B>({
     console.log('onGameEnd');
   },
   onGameTick(_room: Room, events: Event[], st:B):B {
-    //console.log('onGameTick', events.length);
     for (const { from, ts, data: { position } } of events) {
       console.log(from, ts, position);
       st.setCell(position[0], position[1], from);

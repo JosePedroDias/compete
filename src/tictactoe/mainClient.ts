@@ -38,6 +38,13 @@ const ws = uwsClient((msg) => {
     const diffs = msg.state;
     // @ts-ignore
     st.patch(diffs);
-    console.log(st);
+    for (const [k, v] of diffs) {
+      //console.log(k, v);
+      const y = Math.floor(k / 3);
+      const x = k - y * 3;
+      //console.log({k, x, y, v});
+      updateGrid([x, y], { value: v });
+    }
+    //console.log(st.array);
   }
 });

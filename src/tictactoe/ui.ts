@@ -42,7 +42,7 @@ export function grid(
     const data = `${pos[0]},${pos[1]}`;
     const cellEl = cellEls.find((el) => el.dataset.pos === data);
     // @ts-ignore
-    if (value) cellEl.firstChild.nodeValue = uOpts.value;
+    if (uOpts.value) cellEl.firstChild.nodeValue = uOpts.value;
   }
 
   return [gridEl, update];
@@ -59,24 +59,3 @@ export function label(initialValue = ' '): [HTMLElement, Function] {
 
   return [el, update];
 }
-
-// type HashOfstring = {[key: string]: string};
-
-/* export function handleKeys(opts:Object) {
-  //const { relevantKeys:HashOfstring , onChange:Function } = opts;
-  // @ts-ignore
-  const relevantKeys = opts.relevantKeys;
-  // @ts-ignore
-  const onChange = opts.onChange;
-
-  function onKeyEv(ev: KeyboardEvent) {
-      const keyV = relevantKeys[ev.key];
-      if (!keyV) return;
-      
-      ev.preventDefault();
-      ev.stopPropagation();
-      onChange(keyV, ev);
-  }
-  document.body.addEventListener('keydown', onKeyEv);
-  document.body.addEventListener('keyup',   onKeyEv);
-} */
