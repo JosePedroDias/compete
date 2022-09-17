@@ -1,6 +1,7 @@
 const DEG_TO_RAD = Math.PI / 180; // no pixi dependency please
 
 import { v4 as uuid } from 'uuid';
+import { fromPolar } from '../geometry';
 
 export enum Suit {
   Diamonds = 'D', // red
@@ -36,6 +37,7 @@ export class Card {
   rank?: Rank;
   back: Back;
   id: string;
+  owner?: string;
   facingDown = false;
   position: [number, number] = [0, 0];
   rotation = 0;
@@ -225,4 +227,33 @@ export function cardHeuristicFactory(
   return (c) =>
     suitScale * (suitsOrder.indexOf(c.suit || '') + 1) +
     rankScale * (rankOrder.indexOf(c.rank || '') + 1);
+}
+
+export function dealCards(
+  deck: Card[],
+  [W2, H2]: [number, number],
+  cardsPerHand: number,
+  numPlayers: number,
+  heuristicFn: (c: Card) => number,
+): Card[][] {
+  const D_ANGLE = 360 / numPlayers;
+  let angle = 90;
+
+  const hands = [];
+  for (let i = 0; i < numPlayers; ++i) {
+    const hand = deck.splice(0, cardsPerHand);
+    reorder(hand, heuristicFn);
+
+    const [dx, dy] = fromPolar([Math.min(W2, H2) * 0.8, angle]);
+    const [dx2, dy2] = fromPolar([21, 17 + (angle - 90)]);
+    arc(hand, [W2 + dx, H2 + dy], [dx2, dy2], angle - 90, 6);
+
+    hands.push(hand);
+    angle += D_ANGLE;
+  }
+
+  face(deck, true);
+  arc(deck, [W2, H2], [0.4, -0.4], 0, 0);
+
+  return hands;
 }
