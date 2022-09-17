@@ -29,7 +29,10 @@ setup();
 const FRONT_IDX = 1;
 const BACK_IDX = 2;
 
-export function getCardVisual(c: Card, onClick?:(c:Card, cv:Container)=>void) {
+export function getCardVisual(
+  c: Card,
+  onClick?: (c: Card, cv: Container) => void,
+) {
   const cv = new Container();
 
   cv.name = c.id;
@@ -106,7 +109,7 @@ export function disposeCardVisual(cv: Container) {
   cv.parent.removeChild(cv);
 }
 
-export function reorderVisuals(cards:Card[], parent:Container) {
+export function reorderVisuals(cards: Card[], parent: Container) {
   cards = Array.from(cards);
   cards.reverse();
   for (const c of cards) {

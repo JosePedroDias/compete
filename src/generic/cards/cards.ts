@@ -53,21 +53,21 @@ export class Card {
 
     // caching previous values in function context
 
-    this.forget = function() {
+    this.forget = function () {
       if (!this.rank) throw new Error('Card had no value!');
       rank = this.rank;
       suit = this.suit;
       delete this.rank;
       delete this.suit;
       this.onUpdate();
-    }
+    };
 
-    this.recover = function(_suit?:Suit, _rank?:Rank) {
+    this.recover = function (_suit?: Suit, _rank?: Rank) {
       if (this.rank) throw new Error('Card has value value already!');
       this.rank = _rank || rank;
       this.suit = _suit || suit;
       this.onUpdate();
-    }
+    };
   }
 
   setPosition(x: number, y: number) {
@@ -94,7 +94,7 @@ export class Card {
   forget() {}
 
   // this method will be overridden by constructor
-  recover(_suit?:Suit, _rank?:Rank) {}
+  recover(_suit?: Suit, _rank?: Rank) {}
 
   toString() {
     if (!this.rank) return `BLANK`;
@@ -138,13 +138,13 @@ export function getDeck(
 }
 
 // fisher-yates
-export function shuffle<T>(arr:T[], inPlace=false) {
+export function shuffle<T>(arr: T[], inPlace = false) {
   if (!inPlace) {
     arr = Array.from(arr);
   }
   let m = arr.length;
-  let t:T;
-  let i:number;
+  let t: T;
+  let i: number;
   while (m) {
     i = Math.floor(Math.random() * m--);
     t = arr[m];
@@ -154,13 +154,17 @@ export function shuffle<T>(arr:T[], inPlace=false) {
   return arr;
 }
 
-export function place(cards:Card[], [x, y]:[number, number]) {
+export function place(cards: Card[], [x, y]: [number, number]) {
   for (const c of cards) {
     c.setPosition(x, y);
   }
 }
 
-export function face(cards:Card[], facingDown:boolean, forgetRecover=false) {
+export function face(
+  cards: Card[],
+  facingDown: boolean,
+  forgetRecover = false,
+) {
   for (const c of cards) {
     c.setFacingDown(facingDown);
     if (forgetRecover) {
@@ -170,7 +174,13 @@ export function face(cards:Card[], facingDown:boolean, forgetRecover=false) {
   }
 }
 
-export function arc(cards:Card[], [_x, _y]:[number, number], [dx, dy]:[number,number], _degrees:number, dDegrees:number) {
+export function arc(
+  cards: Card[],
+  [_x, _y]: [number, number],
+  [dx, dy]: [number, number],
+  _degrees: number,
+  dDegrees: number,
+) {
   const l = cards.length;
   let x = _x - dx * l * 0.5;
   let y = _y - dy * l * 0.5;
@@ -184,16 +194,35 @@ export function arc(cards:Card[], [_x, _y]:[number, number], [dx, dy]:[number,nu
   }
 }
 
-export function reorder(cards:Card[], heuristicFn:(c:Card)=>number) {
-  cards.sort((a:Card, b:Card) => heuristicFn(a) - heuristicFn(b));
+export function reorder(cards: Card[], heuristicFn: (c: Card) => number) {
+  cards.sort((a: Card, b: Card) => heuristicFn(a) - heuristicFn(b));
 }
 
-const _suitsOrder:string[] = Object.values(Suit);
-const _rankOrder:string[] = [ Rank.Ace, Rank.King, Rank.Queen, Rank.Jack, Rank.Ten, Rank.Nine, Rank.Eight, Rank.Seven, Rank.Six, Rank.Five, Rank.Four, Rank.Three, Rank.Two, Rank.Joker ];
-export function cardHeuristicFactory(suitsFirst=true, suitsOrder:string[]=_suitsOrder, rankOrder:string[]=_rankOrder): (c:Card)=>number {
+const _suitsOrder: string[] = Object.values(Suit);
+const _rankOrder: string[] = [
+  Rank.Ace,
+  Rank.King,
+  Rank.Queen,
+  Rank.Jack,
+  Rank.Ten,
+  Rank.Nine,
+  Rank.Eight,
+  Rank.Seven,
+  Rank.Six,
+  Rank.Five,
+  Rank.Four,
+  Rank.Three,
+  Rank.Two,
+  Rank.Joker,
+];
+export function cardHeuristicFactory(
+  suitsFirst = true,
+  suitsOrder: string[] = _suitsOrder,
+  rankOrder: string[] = _rankOrder,
+): (c: Card) => number {
   const suitScale = suitsFirst ? 20 : 1;
-  const rankScale = suitsFirst ?  1 : 4;
-  return (c) => 
+  const rankScale = suitsFirst ? 1 : 4;
+  return (c) =>
     suitScale * (suitsOrder.indexOf(c.suit || '') + 1) +
     rankScale * (rankOrder.indexOf(c.rank || '') + 1);
 }
