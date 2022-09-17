@@ -16,6 +16,8 @@
       "skipLibCheck": true,
       "outDir": "dist-server"
     },
-    "include": ["src/snake/mainServer.ts"]
+    "include": [
+      "src/*/mainServer.ts",
+    ]
   }
   

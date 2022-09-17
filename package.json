@@ -11,8 +11,9 @@
         "build": "tsc && vite build",
         "preview": "vite preview",
 
-        "build-server": "tsc --build tsconfig.nodejs.json",
-        "run-server": "node --experimental-specifier-resolution=node dist-server/snakeServer.js",
+        "build-server": "rm -rf dist-server && tsc --build tsconfig.nodejs.json",
+        "run-server-snake": "node --experimental-specifier-resolution=node dist-server/snake/mainServer.js",
+        "run-server-tictactoe": "node --experimental-specifier-resolution=node dist-server/tictactoe/mainServer.js",
 
         "test": "vitest",
         "lint": "npx eslint src --fix",

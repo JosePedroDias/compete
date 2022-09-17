@@ -6,7 +6,6 @@ import {
   CompressOptions,
 } from 'uWebSockets.js';
 import { pack, unpack } from 'msgpackr';
-//export type { WebSocket2 } from 'uWebSockets.js';
 
 export type AppOpts = {
   key_file_name?: string;
@@ -99,7 +98,7 @@ export function wrapper({
     }) */
     .listen(port, (token) => {
       if (token) {
-        //console.log(`Listening to port ${port}`);
+        console.log(`Listening to port ${port}`);
       } else {
         console.log(`Failed to listen to ${port}`);
       }

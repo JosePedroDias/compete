@@ -2,6 +2,8 @@ function rndInt(n: number): number {
   return Math.floor(n * Math.random());
 }
 
+export type Position = [number, number];
+
 export class Board<V> {
   w: number;
   h: number;
@@ -41,8 +43,8 @@ export class Board<V> {
     }
   }
 
-  getRandomCellWithValue(value: V): [number, number] {
-    let pos: [number, number];
+  getRandomCellWithValue(value: V): Position {
+    let pos: Position;
     do {
       pos = [rndInt(this.w), rndInt(this.h)];
     } while (this.getCell(pos[0], pos[1]) !== value);

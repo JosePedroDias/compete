@@ -1,0 +1,29 @@
+body {
+    font-family: sans-serif;
+}
+
+.grid {
+    background-color: #000;
+    display: inline-block;
+}
+
+.row {
+    font-size: 0;
+}
+
+.cell {
+    border: 1px solid transparent;
+    display: inline-block;
+    box-sizing: border-box;
+    width: 60px;
+    height: 60px;
+    line-height: 60px;
+    font-size: 40px;
+    background-color: #DDD;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.cell:hover {
+    background-color: #DAA;
+}
