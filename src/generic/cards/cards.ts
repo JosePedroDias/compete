@@ -50,7 +50,24 @@ export class Card {
     if (!rank) {
       this.facingDown = true;
     }
-    //console.log(rank, this.facingDown, this);
+
+    // caching previous values in function context
+
+    this.forget = function() {
+      if (!this.rank) throw new Error('Card had no value!');
+      rank = this.rank;
+      suit = this.suit;
+      delete this.rank;
+      delete this.suit;
+      this.onUpdate();
+    }
+
+    this.recover = function(_suit?:Suit, _rank?:Rank) {
+      if (this.rank) throw new Error('Card has value value already!');
+      this.rank = _rank || rank;
+      this.suit = _suit || suit;
+      this.onUpdate();
+    }
   }
 
   setPosition(x: number, y: number) {
@@ -73,19 +90,11 @@ export class Card {
     this.onUpdate();
   }
 
-  enrich(suit: Suit, rank: Rank) {
-    if (this.suit) throw new Error('Card already has a known value!');
-    this.suit = suit;
-    this.rank = rank;
-    this.onUpdate();
-  }
+  // this method will be overridden by constructor
+  forget() {}
 
-  forget() {
-    if (!this.suit) throw new Error('Card had no known value!');
-    this.suit = undefined;
-    this.rank = undefined;
-    this.onUpdate();
-  }
+  // this method will be overridden by constructor
+  recover(_suit?:Suit, _rank?:Rank) {}
 
   toString() {
     if (!this.rank) return `BLANK`;
@@ -151,9 +160,13 @@ export function place(cards:Card[], [x, y]:[number, number]) {
   }
 }
 
-export function face(cards:Card[], facingDown:boolean) {
+export function face(cards:Card[], facingDown:boolean, forgetRecover=false) {
   for (const c of cards) {
     c.setFacingDown(facingDown);
+    if (forgetRecover) {
+      if (facingDown) c.forget();
+      else c.recover();
+    }
   }
 }
 

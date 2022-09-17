@@ -2,6 +2,7 @@ import { Application, Container, utils } from 'pixi.js';
 
 import { arc, Card, cardHeuristicFactory, face, getDeck, reorder, shuffle } from '../generic/cards/cards';
 import { getCardVisual, reorderVisuals } from '../generic/cards/theme';
+import { fromPolar, toPolar } from '../generic/geometry';
 
 utils.skipHello();
 
@@ -33,27 +34,34 @@ for (const c of deck) {
   app.stage.addChild(cv);
 }
 
-const CARDS_PER_HAND = 5;
+const CARDS_PER_HAND = 8;
+const NUM_PLAYERS = 6;
 
-const hand1 = deck.splice(0, CARDS_PER_HAND);
-const hand2 = deck.splice(0, CARDS_PER_HAND);
+const D_ANGLE = 360 / NUM_PLAYERS;
+let angle = 90;
 
-reorder(hand1, cardHeuristicFactory(false));
-reorderVisuals(hand1, app.stage);
+const hands = [];
+for (let i = 0; i < NUM_PLAYERS; ++i) {
+  const hand = deck.splice(0, CARDS_PER_HAND);
+  reorder(hand, cardHeuristicFactory(false));
+  reorderVisuals(hand, app.stage);
+  arc(hand, [W2, H2], [0.4, -0.4], angle, 0);  
 
-arc(deck, [W2, H2], [0.4, -0.4], 0, 0);
+  const [dx, dy] = fromPolar([Math.min(W2, H2) * 0.85, angle]);
+  //const [dx2, dy2] = fromPolar([Math.min(W2, H2) * 0.85, angle]);
 
-arc(hand1, [W2, 0.85 * H], [20, 4], 0, 6);
+  arc(hand, [W2 + dx, H2 + dy], [20, 6], angle - 90, 6);
 
-face(hand2, true);
-arc(hand2, [W2, 0.15 * H], [-20, 4], 180, 6);
+  if (i !== 0) {
+    face(hand, true, true);
+  }
+  
+  hands.push(hand);
+  angle += D_ANGLE;
+}
+
+face(deck, true);
+arc(deck, [W2, H2], [0.4, -0.4], angle, 0);
 
 // @ts-ignore
-//window.d = deck;
-
-//app.stage.interactiveChildren = true;
-//app.stage.interactive = true;
-
-/* app.stage.on('pointerdown', (ev) => {
-  console.log(ev);
-}); */
+window.cards = { deck, hands };
