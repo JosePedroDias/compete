@@ -1,9 +1,7 @@
 /*
 tracks changes on 1st level objects (as records)
-works ok for array assignments and it's methods push, pop, shift, unshift
+works ok for array assignments and it's methods push, pop, shift, unshift. support insertAt(n, v) and removeAt(n) for arrays
 
-EVENTUAL TODO
-- support slice, splice?
 - the sort part is irrelevant on ES2015 as Object.keys order is stable
 */
 
@@ -12,7 +10,7 @@ export function trackObject(o: Object) {
 
   const isArray = o instanceof Array;
 
-  const SPECIALS = ['push', 'pop', 'shift', 'unshift'];
+  const SPECIALS = ['push', 'pop', 'shift', 'unshift', 'insertAt', 'removeAt'];
 
   function sync() {
     // @ts-ignore
@@ -49,8 +47,16 @@ export function trackObject(o: Object) {
 
     for (const [k, v] of diffs) {
       if (isArray && SPECIALS.indexOf(k as string) !== -1) {
-        // @ts-ignore
-        o[k](v);
+        if (k === 'insertAt') {
+          // @ts-ignore
+          o.splice(v[0], 0, v[1]);
+        } else if (k === 'removeAt') {
+          // @ts-ignore
+          o.splice(v, 1);
+        } else {
+          // @ts-ignore
+          o[k](v);
+        }
       } else {
         // @ts-ignore
         o[k] = v;
@@ -58,10 +64,19 @@ export function trackObject(o: Object) {
     }
   }
 
-  function special(methodName: string, v: any) {
-    yetToSync.set(methodName, v);
-    // @ts-ignore
-    return o[methodName](v);
+  function special(methodName: string, v: any, v2:any) {
+    yetToSync.set(methodName, v2 !== undefined ? [v, v2] : v);
+
+    if (methodName === 'insertAt') { // v, v2
+      // @ts-ignore
+      o.splice(v, 0, v2);
+    } else if (methodName === 'removeAt') { // v
+      // @ts-ignore
+      o.splice(v, 1);
+    } else {
+      // @ts-ignore
+      return o[methodName](v);
+    }
   }
 
   const proxy = new Proxy(o, {
@@ -70,7 +85,7 @@ export function trackObject(o: Object) {
       if (k === 'patch') return patch;
       if (isArray && SPECIALS.indexOf(k as string) !== -1) {
         // @ts-ignore
-        return (v) => special(k, v);
+        return (v, v2) => special(k, v, v2);
       }
       if (k in target) {
         // @ts-ignore

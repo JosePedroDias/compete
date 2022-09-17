@@ -43,11 +43,14 @@ it('trackObject array methods', () => {
   p.shift(); // b c
   p.unshift('d'); // d b c
   p.pop(); // d b
+  p.insertAt(1, 'e'); // d e b
+  p.removeAt(0); // e b
 
-  expect(arr).toEqual(['d', 'b']);
-  expect(p).toEqual(['d', 'b']);
+  expect(arr).toEqual(['e', 'b']);
+  expect(p).toEqual(['e', 'b']);
 
   const diffs = p.sync();
+  //console.log(diffs);
   arr2.patch(diffs);
   expect(arr).toEqual(arr2);
 });
