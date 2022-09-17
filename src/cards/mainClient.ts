@@ -2,12 +2,6 @@ import { Application, Sprite, Text, Texture, utils } from 'pixi.js';
 
 import { Card, getDeck } from '../generic/cards/cards';
 
-//declare module "*.svg" { }
-
-//import folder from '../generic/cards/artwork';
-//import c3Svg from '/cards/C3.svg';
-//import d4Svg from '../generic/cards/artwork/D4.svg';
-
 utils.skipHello();
 
 const app = new Application({
@@ -29,12 +23,9 @@ const txt = new Text('FPS', {
 txt.position.set(20, 20);
 app.stage.addChild(txt);
 
-function getCardVisual(_c: Card) {
-  const imgUrl = new URL('/cards/C3.svg', import.meta.url).href;
+function getCardVisual(c: Card) {
+  const imgUrl = new URL(`/cards/${c.toString()}.svg`, import.meta.url).href;
   const cardTexture = Texture.from(imgUrl);
-
-  //const cardTexture = Texture.from(`/${_c.toString()}.svg`);  
-
   const card = new Sprite(cardTexture);
   card.position.set(100, 100);
   card.scale.set(0.5);
@@ -42,29 +33,19 @@ function getCardVisual(_c: Card) {
   return card;
 }
 
-//const cardPaths = [c3Svg, d4Svg];
-
-/* let x = 20;
-for (const svg of cardPaths) {
-  const cardTexture = Texture.from(svg);
-  const card = new Sprite(cardTexture);
-  card.position.set(x, 400);
-  card.scale.set(0.5);
-  app.stage.addChild(card);
-  x += 30;
-} */
-
-const minX = 20;
-const maxX = 500;
-const minY = 50;
-const dX = 40;
-const dY = 100;
+const minX = 90;
+const maxX = 960;
+const minY = 110;
+const dX = 70;
+const dY = 180;
 
 const deck = getDeck(false);
+console.log(deck);
 let x = minX;
 let y = minY;
 for (const c of deck) {
   const cv = getCardVisual(c);
+  cv.anchor.set(0.5);
   cv.position.set(x, y);
   x += dX;
   if (x > maxX) {
