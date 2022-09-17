@@ -6,8 +6,6 @@ import { getBoard, indexToPos, T3Board } from './T3Board';
 const CLEAN_LABEL_MS = 2500;
 let cleanTimer: any;
 
-const boardEl = document.getElementById('board') as HTMLElement;
-
 function onClick(position: [number, number]) {
   ws.send({ op: 'play', position });
 }
@@ -29,10 +27,9 @@ function updateLabel(txt: string) {
 const [gridEl, updateGrid] = grid(3, 3, { onClick });
 document.body.appendChild(gridEl);
 
-//const st = trackObject(new TicTacToeState());
-const st:T3Board = getBoard();
+const st: T3Board = getBoard();
 
-let myId:number;
+let myId: number;
 const ws = uwsClient((msg) => {
   switch (msg.op) {
     case 'announce':

@@ -5,7 +5,7 @@ works ok for array assignments and it's methods push, pop, shift, unshift. suppo
 - the sort part is irrelevant on ES2015 as Object.keys order is stable
 */
 
-export function trackObject(o: Object) {
+export function trackObject(o: any) {
   const isArray = o instanceof Array;
 
   let yetToSync = isArray ? [] : new Map<string, any>();
@@ -70,13 +70,13 @@ export function trackObject(o: Object) {
   }
 
   // only called for arrays
-  function special(methodName: string, v: any, v2:any) {
+  function special(methodName: string, v: any, v2: any) {
     (yetToSync as any[]).push([methodName, v2 !== undefined ? [v, v2] : v]);
 
-    if (methodName === 'insertAt') { // v, v2
+    if (methodName === 'insertAt') {
       // @ts-ignore
       o.splice(v, 0, v2);
-    } else if (methodName === 'removeAt') { // v
+    } else if (methodName === 'removeAt') {
       // @ts-ignore
       o.splice(v, 1);
     } else {

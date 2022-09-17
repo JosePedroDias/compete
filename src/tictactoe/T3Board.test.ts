@@ -20,7 +20,7 @@ it('basic', () => {
   expect(t).toEqual({
     cells: [0, 0, 0, 0, 0, 0, 0, 0, 0],
     whoWon: 0,
-    nextToPlay: []
+    nextToPlay: [],
   });
 
   t.cells[1] = 2;
@@ -31,7 +31,7 @@ it('basic', () => {
   expect(t).toEqual({
     cells: [0, 2, 0, 0, 0, 0, 0, 0, 0],
     whoWon: 3,
-    nextToPlay: [4, 5]
+    nextToPlay: [4, 5],
   });
 
   expect(t.cells.length).toEqual(9);
@@ -53,7 +53,7 @@ it('api cell calls', () => {
   expect(t).toEqual({
     cells: [0, 3, 0, 2, 0, 0, 0, 0, 0],
     whoWon: 0,
-    nextToPlay: []
+    nextToPlay: [],
   });
 
   const diffs = t.sync();

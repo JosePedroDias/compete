@@ -1,34 +1,33 @@
 //import {theme} from './cardzp-theme';
 
-
 export enum Suit {
-  Diamonds = "D", // red
-  Spades = "S",  // black
+  Diamonds = 'D', // red
+  Spades = 'S', // black
   Hearts = 'H', // red
-  Clubs = 'C' // black
-};
+  Clubs = 'C', // black
+}
 
 export enum Rank {
   Ace = 'A',
-  Two = "2",
-  Three = "3",
-  Four = "4",
-  Five = "5",
-  Six = "6",
-  Seven = "7",
-  Eight = "8",
-  Nine = "9",
-  Ten = "T",
-  Jack = "J",
+  Two = '2',
+  Three = '3',
+  Four = '4',
+  Five = '5',
+  Six = '6',
+  Seven = '7',
+  Eight = '8',
+  Nine = '9',
+  Ten = 'T',
+  Jack = 'J',
   Queen = 'Q',
   King = 'K',
-  Joker = 'R'
-};
+  Joker = 'R',
+}
 
 export enum Back {
   Blue = 'B1',
-  Red  = 'B2'
-};
+  Red = 'B2',
+}
 
 /* export type Suit = D |
 
@@ -37,11 +36,11 @@ export const RANKS = '23456789TJQKA'.split(''); // cards arte SUIT+RANK. jokers 
 export const DECK_BACK_COLORS = 'B1 B2'.split(' '); // blue red
  */
 export class Card {
-  suit:Suit;
-  rank:Rank;
-  back:Back;
+  suit: Suit;
+  rank: Rank;
+  back: Back;
 
-  constructor(_suit:Suit, _rank:Rank, _back:Back) {
+  constructor(_suit: Suit, _rank: Rank, _back: Back) {
     this.suit = _suit;
     this.rank = _rank;
     this.back = _back;
@@ -52,13 +51,17 @@ export class Card {
   }
 }
 
-export function getDeck(withJokers:boolean, back:Back = Back.Blue):Card[] {
-  const cards:Card[] = [];
+export function getDeck(withJokers: boolean, back: Back = Back.Blue): Card[] {
+  const cards: Card[] = [];
 
   for (const suit of Object.values(Suit)) {
     for (const rank of Object.values(Rank)) {
-      if (rank === Rank.Joker && (!withJokers || suit === Suit.Hearts || suit === Suit.Clubs)) continue;
-      cards.push( new Card(suit, rank, back) );
+      if (
+        rank === Rank.Joker &&
+        (!withJokers || suit === Suit.Hearts || suit === Suit.Clubs)
+      )
+        continue;
+      cards.push(new Card(suit, rank, back));
     }
   }
 

@@ -12,7 +12,6 @@ export function grid(
 
   const cellEls: HTMLElement[] = [];
 
-  let i = 0;
   for (let y = 0; y < h; ++y) {
     const rowEl = document.createElement('div');
     rowEl.className = 'row';
@@ -25,7 +24,6 @@ export function grid(
       cellEl.appendChild(document.createTextNode(' '));
       rowEl.appendChild(cellEl);
       cellEls.push(cellEl);
-      ++i;
     }
   }
 
@@ -48,12 +46,14 @@ export function grid(
   return [gridEl, update];
 }
 
-export function label(initialValue = ' '): [HTMLElement, Function] {
+export function label(
+  initialValue = ' ',
+): [HTMLElement, (value: string) => void] {
   const el = document.createElement('div');
 
   el.innerHTML = initialValue;
 
-  function update(value: any) {
+  function update(value: string) {
     el.innerHTML = value;
   }
 

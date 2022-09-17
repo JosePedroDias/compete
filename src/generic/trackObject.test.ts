@@ -78,3 +78,8 @@ it('2 levels', () => {
   st2.patch(sync);
   expect(st).toEqual(st2);
 });
+
+it('hidden state', () => {
+  const c = trackObject({ back: 'blue', suit: 'clubs', rank: 'ace' });
+  expect(c).toEqual({ back: 'blue', suit: 'clubs', rank: 'ace' });
+});
