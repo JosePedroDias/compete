@@ -1,4 +1,5 @@
-import { DEG_TO_RAD } from 'pixi.js';
+const DEG_TO_RAD = Math.PI / 180; // no pixi dependency please
+
 import { v4 as uuid } from 'uuid';
 
 export enum Suit {
@@ -127,301 +128,57 @@ export function getDeck(
   return cards;
 }
 
-/* 
-function _setupSprite(name) {
-    const texture = theme[name];
-    const card = new Sprite(texture);
-    card.anchor.set(0.5, 0.5);
-    //card.scale.set(scale, scale);
-    return card;
+// fisher-yates
+export function shuffle<T>(arr:T[], inPlace=false) {
+  if (!inPlace) {
+    arr = Array.from(arr);
+  }
+  let m = arr.length;
+  let t:T;
+  let i:number;
+  while (m) {
+    i = Math.floor(Math.random() * m--);
+    t = arr[m];
+    arr[m] = arr[i];
+    arr[i] = t;
+  }
+  return arr;
 }
 
-function _setupVisualCard(name, opts) { // { highlight, backColor, isFacingDown }
-    const face = _setupSprite(name);
-
-    const highlight = _setupSprite('HIGHLIGHT');
-    highlight.tint = 0x00FF00;
-    highlight.alpha = 2/3;
-
-    const back = _setupSprite(opts.backColor);
-    
-    const shadow = _setupSprite('SHADOW');
-    
-    const card = new Container();
-    card.addChild(shadow);
-    card.addChild(back);
-    card.addChild(face);
-    card.addChild(highlight);
-
-    if (opts.isFacingDown) {
-        face.alpha = 0;
-        face.visible = false;
-    } else {
-        back.alpha = 0;
-        back.visible = false;
-    }
-
-    highlight.visible = false;
-
-    card._shadow = shadow;
-    card._back = back;
-    card._face = face;
-    card._highlight = highlight;
-
-    return card;
+export function place(cards:Card[], [x, y]:[number, number]) {
+  for (const c of cards) {
+    c.setPosition(x, y);
+  }
 }
 
-// card api
-function toCard(o, suit, rank) {
-    const e = o._el;
-    // visual
-    Object.defineProperty(o, 'facingDown', {get: function isFacingDown() { return e._back.visible; }});
-
-    o.setFaceVisible = function(isVisible, duration) {
-        if (o.facingDown !== !!isVisible) return console.log('ignored: noop');
-
-        if ( (e._face.alpha !== 0 && e._face.alpha !== 1) || (e._back.alpha !== 0 && e._back.alpha !== 1)) return console.log('ignored: animating');
-
-        console.log(o.toString() + ' will be facing ' + (isVisible ? 'up' : 'down') + (duration ? ' duration' + duration : ''));
-
-        swapOrder([e._face, e._back]);
-
-        const becomingVisibleSide = e[ isVisible ? '_face' : '_back' ];
-        const nowHiddenSide = e[ isVisible ? '_back' : '_face' ];
-
-        becomingVisibleSide.visible = true;
-
-        if (!duration) {
-            becomingVisibleSide.alpha = 1;
-            nowHiddenSide.alpha = 0;
-            nowHiddenSide.visible = false;
-            return;
-        }
-
-        new Tween(becomingVisibleSide, { alpha: 1 }, duration).call(function() { // TODO BUGGY!
-            nowHiddenSide.alpha = 0;
-            nowHiddenSide.visible = false;
-        });
-    }
-
-    o.flip = function(duration) { o.setFaceVisible(o.facingDown, duration); };
-
-    o.toString = function() {
-        return o.suit + o.rank;
-    }
-
-    // logical
-    Object.defineProperty(o, 'suit', {get: function getSuit() { return suit; }});
-    Object.defineProperty(o, 'rank', {get: function getRank() { return rank; }});
-
-    return o;
+export function face(cards:Card[], facingDown:boolean) {
+  for (const c of cards) {
+    c.setFacingDown(facingDown);
+  }
 }
 
-export function createCard(opts) { // { rank, suit, isJoker, backColor, isFacingDown }
-    let rank = opts.rank
-    let suit = opts.suit;
-
-    if (opts.isJoker) {
-        suit = 'J';
-        if (!rank) {
-            rank = '1';
-        }
-    }
-    if (!opts.backColor) {
-        opts.backColor = DECK_BACK_COLORS[0];
-    }
-    const card = { suit: suit, rank: rank, isJoker: opts.isJoker };
-    card._el = _setupVisualCard(suit + rank, { backColor: opts.backColor, isFacingDown: opts.isFacingDown });
-
-    return toCard(card, suit, rank);
+export function arc(cards:Card[], [_x, _y]:[number, number], [dx, dy]:[number,number], _degrees:number, dDegrees:number) {
+  const l = cards.length;
+  let x = _x - dx * l * 0.5;
+  let y = _y - dy * l * 0.5;
+  let degrees = _degrees - dDegrees * l * 0.5;
+  for (const c of cards) {
+    c.setPosition(x, y);
+    c.setRotationDegrees(degrees);
+    x += dx;
+    y += dy;
+    degrees += dDegrees;
+  }
 }
 
-// cards api
-function toCards(o) {
-    // visual
-    //Object.defineProperty(o, 'facingDown', {get: function isFacingDown() { return o._el._back.visible; }});
-
-    // logical
-    //Object.defineProperty(o, 'suit', {get: function getSuit() { return suit; }});
-    //Object.defineProperty(o, 'rank', {get: function getRank() { return rank; }});
-
-    o.take = function(n) {
-        const l = o.length;
-        if (n > l) throw new Error('Not enough cards');
-        const result = o.splice(l-n, n);
-        return toCards(result);
-    }
-
-    o.takeFromStart = function(n) {
-        const l = o.length;
-        if (n > l) throw new Error('Not enough cards');
-        const result = o.splice(0, n);
-        return toCards(result);
-    }
-
-    o.join = function(o2) {
-        return toCards(o.concat(o2));
-    }
-
-    o.toString = function() {
-        return o.map(function(card) { return card.toString(); });
-    }
-
-    o.flip = function(duration) {
-        o.forEach(function(card) { card.flip(duration); });
-    }
-
-    return o;
+export function reorder(cards:Card[], heuristicFn:(c:Card)=>number) {
+  cards.sort((a:Card, b:Card) => heuristicFn(a) - heuristicFn(b));
 }
 
-
-export function createDeck(opts) { // { ranks, jokers, backColor, isFacingDown }
-    const suits = SUITS;
-    const ranks = opts.ranks || RANKS;
-    const backColor = opts.backColor || DECK_BACK_COLORS[0];
-    const isFacingDown = opts.isFacingDown;
-
-    let i, j;
-    const cards = [];
-
-    for (i in suits) {
-        for (j in ranks) {
-            const card = createCard({ suit: suits[i], rank: ranks[j], backColor: backColor, isFacingDown: isFacingDown });
-            cards.push(card);
-        }
-    }
-
-    if (opts.jokers) {
-        let card;
-
-        card = createCard({ isJoker: true, rank: '1', backColor: backColor, isFacingDown: isFacingDown });
-        cards.push(card);
-
-        card = createCard({ isJoker: true, rank: '2', backColor: backColor, isFacingDown: isFacingDown });
-        cards.push(card);
-    }
-
-    return toCards(cards);
+const _suitsOrder:string[] = Object.keys(Suit);
+const _rankOrder:string[] = [ Rank.Ace, Rank.King, Rank.Queen, Rank.Jack, Rank.Ten, Rank.Nine, Rank.Eight, Rank.Seven, Rank.Six, Rank.Five, Rank.Four, Rank.Three, Rank.Two, Rank.Joker ];
+export function cardHeuristicFactory(suitsFirst=true, suitsOrder:string[]=_suitsOrder, rankOrder:string[]=_rankOrder): (c:Card)=>number {
+  const suitScale = suitsFirst ? 100 : 1;
+  const rankScale = suitsFirst ? 1 : 100;
+  return (c) => suitScale * suitsOrder.indexOf(c.suit || '') + rankScale * rankOrder.indexOf(c.rank || '');
 }
-
-export function shuffle(cards) {
-    const rng = Math.random;
-    let m = cards.length, t, i;
-    while (m) {
-        i = Math.floor(rng() * m--);
-        t = cards[m];
-        cards[m] = cards[i];
-        cards[i] = t;
-    }
-    return cards;
-}
-
-export function lerp(i, a, b) {
-    return (1-i) * a + i * b;
-}
-
-function _lerpObject(i, a, b) {
-    const o = {};
-    Object.keys(a).forEach(function(k) {
-        o[k] = lerp(i, a[k], b[k]);
-    });
-    return o;
-}
-
-export function linearSpread(arr, opts) { // { pi, pf, duration?, onEnd? }
-    function fn(i, len) {
-        const r = i/len;
-        return _lerpObject(r, opts.pi, opts.pf);
-    }
-    for (let i = 0; i < arr.length; ++i) {
-        const el = arr[i]._el;
-        const p = fn(i, arr.length);
-        if (!opts.duration) el.position.set(p.x, p.y);
-        else new Tween(el, p, opts.duration);
-    }
-    if (opts.onEnd) {
-        if (opts.duration) new Tween({}, {}, opts.duration).call(opts.onEnd);
-        else opts.onEnd();
-    }
-}
-
-export function customSpread(arr, opts) { // { getP, duration?, onEnd? }
-    function fn(i, len) {
-        const r = i/len;
-        return opts.getP(r);
-    }
-    for (let i = 0; i < arr.length; ++i) {
-        const el = arr[i]._el;
-        const p = fn(i, arr.length);
-        if (!opts.duration) el.position.set(p.x, p.y);
-        else new Tween(el, p, opts.duration);
-    }
-    if (opts.onEnd) {
-        if (opts.duration) new Tween({}, {}, opts.duration).call(opts.onEnd);
-        else opts.onEnd();
-    }
-}
-
-export function getVisuals(arr) {
-    return arr.map(e => e._el);
-}
-
-const asc = (a, b) => a < b ? -1 : a > b ? 1 : 0;
-
-function swapOrder(arr) { // assumes 2 items of same parent. keeps rest of children untouched
-    if (arr.length === 0) return;
-    if (arr[0]._el) arr = getVisuals(arr);
-    const parent = arr[0].parent;
-    const indexA = parent.children.indexOf(arr[0]);
-    const indexB = parent.children.indexOf(arr[1]);
-    if (indexA < indexB) {
-        parent.addChildAt(arr[0], indexB);
-    } else {
-        parent.addChildAt(arr[1], indexA);
-    }
-}
-
-// assumes all items being children of the same parent!
-export function reorderThese(arr, inverse) { // WARNING: reorders the whole group of children
-    if (arr.length === 0) return;
-    if (arr[0]._el) arr = getVisuals(arr);
-    const parent = arr[0].parent;
-    const currentOrder = [];
-    if (inverse) {
-        arr = arr.slice().reverse();
-    }
-    arr.forEach(function(spr) {
-        const currentIndex = parent.children.indexOf(spr);
-        currentOrder.push(currentIndex);
-    });
-    arr.forEach(function(spr) {
-        parent.removeChild(spr);
-    });
-    currentOrder.sort(asc);
-    arr.forEach(function(spr, i) {
-        parent.addChildAt(spr, currentOrder[i]);
-    });
-}
-
-// AUX
-
-// without side-effects
-export function reverse(arr_) {
-    const arr = arr_.slice();
-    return arr.reverse();
-}
-
-export function normalize(p) {
-    const l = Math.sqrt(p.x*p.x + p.y+p.y);
-    return { x: p.x/l, y: p.y/l };
-} */
-
-/*
-face
-face/several suits in the center
-number top left
-suit top left
-back
-card
-shadow
-*/

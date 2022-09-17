@@ -1,4 +1,4 @@
-import { Sprite, Texture, Container } from 'pixi.js';
+import { Sprite, Texture, Container, CubeResource } from 'pixi.js';
 import { getDeck, Card, Back } from './cards';
 
 export const cardTextures = new Map<string, Texture>();
@@ -31,6 +31,8 @@ const BACK_IDX = 2;
 
 export function getCardVisual(c: Card) {
   const cv = new Container();
+
+  cv.name = c.id;
 
   const shadow = new Sprite(cardTextures.get(KEY_SHADOW));
   shadow.anchor.set(0.5);
@@ -96,4 +98,13 @@ export function updateCardVisual(c: Card, cv: any) {
 
 export function disposeCardVisual(cv: Container) {
   cv.parent.removeChild(cv);
+}
+
+export function reorderVisuals(cards:Card[], parent:Container) {
+  cards = Array.from(cards);
+  cards.reverse();
+  for (const c of cards) {
+    const cv = parent.getChildByName(c.id);
+    parent.setChildIndex(cv, 0);
+  }
 }
