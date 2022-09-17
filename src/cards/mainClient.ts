@@ -1,6 +1,6 @@
-import { Application, utils } from 'pixi.js';
+import { Application, Container, utils } from 'pixi.js';
 
-import { arc, cardHeuristicFactory, face, getDeck, reorder, shuffle } from '../generic/cards/cards';
+import { arc, Card, cardHeuristicFactory, face, getDeck, reorder, shuffle } from '../generic/cards/cards';
 import { getCardVisual, reorderVisuals } from '../generic/cards/theme';
 
 utils.skipHello();
@@ -23,24 +23,14 @@ document.body.appendChild(app.view);
 const deck = getDeck(false, undefined, 0);
 shuffle(deck, true);
 
-const minX = 90;
-const maxX = 960;
-const minY = 110;
-const dX = 70;
-const dY = 180;
+function onClick(c:Card, cv:Container) {
+  console.log('click', c, cv);
+}
 
-let x = minX;
-let y = minY;
 for (const c of deck) {
-  const cv = getCardVisual(c);
+  const cv = getCardVisual(c, onClick);
   cv.scale.set(0.5);
-  c.setPosition(x, y);
   app.stage.addChild(cv);
-  x += dX;
-  if (x > maxX) {
-    x = minX;
-    y += dY;
-  }
 }
 
 const CARDS_PER_HAND = 5;
@@ -59,4 +49,11 @@ face(hand2, true);
 arc(hand2, [W2, 0.15 * H], [-20, 4], 180, 6);
 
 // @ts-ignore
-window.d = deck;
+//window.d = deck;
+
+//app.stage.interactiveChildren = true;
+//app.stage.interactive = true;
+
+/* app.stage.on('pointerdown', (ev) => {
+  console.log(ev);
+}); */

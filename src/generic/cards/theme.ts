@@ -29,7 +29,7 @@ setup();
 const FRONT_IDX = 1;
 const BACK_IDX = 2;
 
-export function getCardVisual(c: Card) {
+export function getCardVisual(c: Card, onClick?:(c:Card, cv:Container)=>void) {
   const cv = new Container();
 
   cv.name = c.id;
@@ -56,6 +56,12 @@ export function getCardVisual(c: Card) {
     () => updateCardVisual(c, cv),
     () => disposeCardVisual(cv),
   );
+
+  if (onClick) {
+    cv.interactive = true;
+    cv.buttonMode = true;
+    cv.on('pointerdown', () => onClick(c, cv));
+  }
 
   return cv;
 }
