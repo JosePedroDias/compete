@@ -44,10 +44,7 @@ export class Board<V> {
   getRandomCellWithValue(value: V): [number, number] {
     let pos: [number, number];
     do {
-      pos = [
-        rndInt(this.w),
-        rndInt(this.h)
-      ];
+      pos = [rndInt(this.w), rndInt(this.h)];
     } while (this.getCell(pos[0], pos[1]) !== value);
     return pos;
   }
@@ -73,7 +70,7 @@ export class Board<V> {
   }
 
   patch(diffs: [number, V][]) {
-    for (let [i, v] of diffs) {
+    for (const [i, v] of diffs) {
       this.array[i] = v;
     }
   }

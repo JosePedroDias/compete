@@ -1,5 +1,5 @@
-import { wrapper, WebSocket2 } from './uwsWrapper';
-import { Board } from './Board';
+import { wrapper, WebSocket2 } from '../generic/uwsWrapper';
+import { Board } from '../generic/Board';
 import { Snake, CHAR_EMPTY, CHAR_FOOD, CHAR_OBSTACLE } from './Snake';
 
 const W = 80;
@@ -13,7 +13,7 @@ const ADD_OBSTACLE_EVERY_N_TICKS = 120;
 let ticksLeftForFood = ADD_FOOD_EVERY_N_TICKS;
 let ticksLeftForObstacle = ADD_OBSTACLE_EVERY_N_TICKS;
 
-let board = new Board(W, H, CHAR_EMPTY); // REFERENCE FOR NEW CLIENTS
+const board = new Board(W, H, CHAR_EMPTY); // REFERENCE FOR NEW CLIENTS
 
 let snakes = new Map(); // id -> snake
 
@@ -92,7 +92,7 @@ const { idToWsInstance, broadcast } = wrapper({
   },
   onClose(ws: WebSocket2, _code) {
     removeSnake(ws.id);
-  }
+  },
 });
 
 reset();

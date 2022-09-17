@@ -1,7 +1,7 @@
-import { Board } from "./Board";
+import { Board } from '../generic/Board';
 import { pack, unpack } from 'msgpackr';
 
-let board:Board<string>;
+let board: Board<string>;
 
 document.body.addEventListener('keydown', (ev) => {
   const key = ev.key;
@@ -11,14 +11,14 @@ document.body.addEventListener('keydown', (ev) => {
     ev.preventDefault();
     ev.stopPropagation();
   }
-})
+});
 
 const boardEl = document.getElementById('board') as HTMLElement;
 
 const ws = new WebSocket('ws://127.0.0.1:9001');
 ws.binaryType = 'arraybuffer'; // to get an arraybuffer instead of a blob
 
-function send(o:any):void {
+function send(o: any): void {
   ws.send(pack(o));
 }
 
