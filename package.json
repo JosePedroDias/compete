@@ -20,6 +20,7 @@
         "format": "npm run prettier && npm run lint"
     },
     "devDependencies": {
+        "@types/uuid": "^8.3.4",
         "@typescript-eslint/eslint-plugin": "^5.33.0",
         "@typescript-eslint/parser": "^5.33.0",
         "eslint": "^8.22.0",
@@ -35,6 +36,7 @@
     },
     "dependencies": {
         "msgpackr": "^1.7.0-alpha3",
+        "uuid": "^8.3.2",
         "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.10.0"
     }
 }

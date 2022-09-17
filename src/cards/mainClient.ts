@@ -1,6 +1,7 @@
-import { Application, Sprite, Text, Texture, utils } from 'pixi.js';
+import { Application, Text, utils } from 'pixi.js';
 
-import { Card, getDeck } from '../generic/cards/cards';
+import { getDeck } from '../generic/cards/cards';
+import { getCardVisual } from '../generic/cards/theme';
 
 utils.skipHello();
 
@@ -23,16 +24,6 @@ const txt = new Text('FPS', {
 txt.position.set(20, 20);
 app.stage.addChild(txt);
 
-function getCardVisual(c: Card) {
-  const imgUrl = new URL(`/cards/${c.toString()}.svg`, import.meta.url).href;
-  const cardTexture = Texture.from(imgUrl);
-  const card = new Sprite(cardTexture);
-  card.position.set(100, 100);
-  card.scale.set(0.5);
-  app.stage.addChild(card);
-  return card;
-}
-
 const minX = 90;
 const maxX = 960;
 const minY = 110;
@@ -40,16 +31,21 @@ const dX = 70;
 const dY = 180;
 
 const deck = getDeck(false);
-console.log(deck);
+
 let x = minX;
 let y = minY;
 for (const c of deck) {
   const cv = getCardVisual(c);
-  cv.anchor.set(0.5);
-  cv.position.set(x, y);
+  cv.scale.set(0.5);
+  c.setPosition(x, y);
+  app.stage.addChild(cv);
   x += dX;
   if (x > maxX) {
     x = minX;
     y += dY;
   }
 }
+
+// @ts-ignore
+window.d = deck;
+console.log(deck);

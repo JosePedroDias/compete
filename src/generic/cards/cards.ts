@@ -1,4 +1,5 @@
-//import {theme} from './cardzp-theme';
+import { DEG_TO_RAD } from 'pixi.js';
+import { v4 as uuid } from 'uuid';
 
 export enum Suit {
   Diamonds = 'D', // red
@@ -29,25 +30,66 @@ export enum Back {
   Red = 'B2',
 }
 
-/* export type Suit = D |
+/* export function getSuitStrings():string[] {
+  return Object.values(Suit);
+}
 
-export const SUITS = 'DHSC'.split('');
-export const RANKS = '23456789TJQKA'.split(''); // cards arte SUIT+RANK. jokers are J1 and J2. backs are B1 and B2.
-export const DECK_BACK_COLORS = 'B1 B2'.split(' '); // blue red
+export function getRankStrings():string[] {
+  return Object.values(Rank);
+}
  */
 export class Card {
   suit: Suit;
   rank: Rank;
   back: Back;
+  id: string;
+  facingDown: boolean = false;
+  position: [number, number] = [0, 0];
+  rotation: number = 0;
+  onUpdate: ()=>void = ()=>{};
+  onDispose: ()=>void = ()=>{};
 
-  constructor(_suit: Suit, _rank: Rank, _back: Back) {
-    this.suit = _suit;
-    this.rank = _rank;
-    this.back = _back;
+  constructor(suit: Suit, rank: Rank, back: Back, id: string = '') {
+    this.suit = suit;
+    this.rank = rank;
+    this.back = back;
+    this.id = id ? id : uuid();
+  }
+
+  setPosition(x:number, y:number) {
+    this.position[0] = x;
+    this.position[1] = y;
+    this.onUpdate(); // TODO throttle on tick? use isDirty instead?
+  }
+
+  setRotation(rotation:number) {
+    this.rotation = rotation;
+    this.onUpdate();
+  }
+
+  setRotationDegrees(degrees:number) {
+    this.setRotation(DEG_TO_RAD * degrees);
+  }
+
+  setFacingDown(isDown:boolean) {
+    this.facingDown = isDown;
+    this.onUpdate();
   }
 
   toString() {
     return `${this.suit}${this.rank}`;
+  }
+
+  dispose() {
+    this.onDispose();
+    this.onUpdate = ()=> {};
+    this.onDispose = ()=> {};
+  }
+
+  setUpdateAndDispose(updateFn: () => void, disposeFn: () => void) {
+    this.onUpdate = updateFn;
+    this.onDispose = disposeFn;
+    updateFn();
   }
 }
 
@@ -323,12 +365,12 @@ function swapOrder(arr) { // assumes 2 items of same parent. keeps rest of child
 }
 
 // assumes all items being children of the same parent!
-export function reorderThese(arr, inversed) { // WARNING: reorders the whole group of children
+export function reorderThese(arr, inverse) { // WARNING: reorders the whole group of children
     if (arr.length === 0) return;
     if (arr[0]._el) arr = getVisuals(arr);
     const parent = arr[0].parent;
     const currentOrder = [];
-    if (inversed) {
+    if (inverse) {
         arr = arr.slice().reverse();
     }
     arr.forEach(function(spr) {
