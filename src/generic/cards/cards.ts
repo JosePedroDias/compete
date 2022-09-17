@@ -37,7 +37,7 @@ export class Card {
   rank?: Rank;
   back: Back;
   id: string;
-  owner?: string;
+  owner?: number;
   facingDown = false;
   position: [number, number] = [0, 0];
   rotation = 0;
@@ -47,8 +47,14 @@ export class Card {
   constructor(id = '', back: Back = Back.Blue, suit?: Suit, rank?: Rank) {
     this.id = id ? id : uuid();
     this.back = back;
-    this.suit = suit;
-    this.rank = rank;
+
+    if (suit) {
+      this.suit = suit;
+    }
+    if (rank) {
+      this.rank = rank;
+    }
+
     if (!rank) {
       this.facingDown = true;
     }

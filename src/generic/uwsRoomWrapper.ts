@@ -19,6 +19,7 @@ export type RoomWrapperObj<St> = Omit<
   onGameStart: (room: Room) => St;
   onGameTick: (room: Room, events: Event[], st: St) => St;
   onGameEnd: (room: Room, st: St) => void;
+  adaptState?: (st: St, id: number) => St;
 };
 
 export class Room {
@@ -47,6 +48,7 @@ export function roomWrapper<St>({
   onGameStart,
   onGameTick,
   onGameEnd,
+  adaptState = (st, _id) => st,
 }: RoomWrapperObj<St>) {
   const gameStates = new Map<Room, St>();
   const gameEvents = new Map<Room, Event[]>();
@@ -86,9 +88,16 @@ export function roomWrapper<St>({
 
         if (room && room.participants.size > 0) {
           // @ts-ignore
-          const sync = st.sync();
-          for (const ws of room.participants) {
-            ws.send({ op: 'update-state', state: sync });
+          if (st.sync) {
+            // @ts-ignore
+            const sync = st.sync();
+            for (const ws of room.participants) {
+              ws.send({ op: 'update-state', state: sync });
+            }
+          } else {
+            for (const ws of room.participants) {
+              ws.send({ op: 'update-state', state: adaptState(st, ws.id) });
+            }
           }
         }
       }, 1000 / roomOpts.tickRate);

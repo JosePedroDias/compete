@@ -1,15 +1,9 @@
 import { Application, Container, DEG_TO_RAD, utils } from 'pixi.js';
 import { uwsClient } from '../generic/uwsClient';
 
-import {
-  Card,
-  cardHeuristicFactory,
-  face,
-  getDeck,
-  dealCards,
-  shuffle,
-} from '../generic/cards/cards';
+import { Card } from '../generic/cards/cards';
 import { getCardVisual } from '../generic/cards/theme';
+import { GoFishState } from './GoFishState';
 
 utils.skipHello();
 
@@ -33,45 +27,41 @@ tableCtn.position.set(W2, H2);
 tableCtn.pivot.set(W2, H2);
 app.stage.addChild(tableCtn);
 
-const deck = getDeck(false, undefined, 0);
-shuffle(deck, true);
+let cardId: string;
+let participantId: number;
 
-function onClick(c: Card, cv: Container) {
-  console.log('click', c, cv); // TODO SEND EVENTS
+function onCardClick(c: Card, _cv: Container) {
+  //console.log('click', c, cv); // TODO SEND EVENTS
+  if (c.owner !== myId) {
+    console.log('ignore');
+    return;
+  }
+  cardId = c.id;
+  console.log('saved', c);
+  ws.send({ op: 'ask', card: cardId, to: participantId || 0 });
 }
 
-const NUM_PLAYERS = 5;
-const CURRENT_PLAYER = 0;
-const D_ANGLE = -360 / NUM_PLAYERS;
-
-const hands = dealCards(
-  deck,
-  [W2, H2],
-  5,
-  NUM_PLAYERS,
-  cardHeuristicFactory(false),
-);
-
-for (let i = 0; i < NUM_PLAYERS; ++i) {
-  if (i !== CURRENT_PLAYER) face(hands[i], true, true);
-}
-face(deck, true, true);
-
-// SEE PLAYER #N PERSPECTIVE
-tableCtn.rotation = CURRENT_PLAYER * D_ANGLE * DEG_TO_RAD;
-
-// @ts-ignore
-window.cards = { deck, hands };
-
-for (const pile of [deck, ...hands]) {
-  for (const c of pile) {
-    const cv = getCardVisual(c, onClick);
-    cv.scale.set(0.5);
-    tableCtn.addChild(cv);
+function importState({ stockPile, hands }: GoFishState) {
+  for (const pile of [stockPile, ...hands]) {
+    for (const c of pile) {
+      const cv = getCardVisual(c, onCardClick);
+      cv.scale.set(0.5);
+      tableCtn.addChild(cv);
+    }
   }
 }
 
+function processCard(c: Card) {
+  const cc = new Card(c.id, c.back, c.suit, c.rank);
+  cc.owner = c.owner;
+  cc.setPosition(c.position[0], c.position[1]);
+  cc.setRotation(c.rotation);
+  //cc.setFacingDown(c.facingDown);
+  return cc;
+}
+
 let myId: number;
+let st: GoFishState;
 const ws = uwsClient((msg) => {
   switch (msg.op) {
     case 'my-id':
@@ -82,6 +72,30 @@ const ws = uwsClient((msg) => {
       console.warn(`player left: ${msg.id}`);
       break;
     case 'update-state':
+      if (!st) {
+        const st0 = msg.state as GoFishState;
+
+        st = {
+          stockPile: st0.stockPile.map(processCard),
+          hands: st0.hands.map((h) => h.map(processCard)),
+        };
+
+        const participantIds: number[] = st.hands.map(
+          (h) => h[0].owner as number,
+        );
+        const currentPlayer = participantIds.indexOf(myId);
+
+        // SEE PLAYER #N PERSPECTIVE
+        const D_ANGLE = -360 / participantIds.length;
+        tableCtn.rotation = currentPlayer * D_ANGLE * DEG_TO_RAD;
+
+        importState(st);
+        // @ts-ignore
+        window.st = st;
+      } else {
+        // TODO
+      }
+
       break;
     default:
       console.warn(`unsupported opcode: ${msg.op}`);

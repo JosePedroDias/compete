@@ -5,7 +5,6 @@ import {
   dealCards,
   Card,
 } from '../generic/cards/cards';
-import { TO, trackObject } from '../generic/trackObject';
 
 const W2 = 1280 / 2;
 const H2 = 1024 / 2; // TODO SQUARE?
@@ -33,27 +32,21 @@ export function getBasicSetup(participants: number[]): GoFishState {
   for (const [i, hand] of Object.entries(hands)) {
     const owner = participants[+i];
     for (const c of hand) {
-      c.owner = '' + owner;
+      c.owner = owner;
     }
   }
 
   return { stockPile: deck, hands };
 }
 
-export type GFSTO = TO<GoFishState>;
-
-export function trackState({ stockPile, hands }: GoFishState): GFSTO {
-  function trackPile(cards: Card[]) {
-    const cards2 = cards.map((c) => trackObject(c));
-    return trackObject(cards2);
+export function getView({ stockPile, hands }: GoFishState, id: number) {
+  function processCard(c: Card) {
+    if (c.rank && c.owner && c.owner !== id) c.forget();
+    if (!c.rank && (!c.owner || c.owner === id)) c.recover();
   }
 
-  const stockPile2 = trackPile(stockPile);
-
-  const hands2 = hands.map(trackPile);
-
-  return trackObject({
-    stockPile: stockPile2,
-    hands: trackObject(hands2),
-  });
+  for (const c of stockPile) processCard(c);
+  for (const h of hands) {
+    for (const c of h) processCard(c);
+  }
 }
