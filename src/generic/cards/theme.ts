@@ -1,4 +1,4 @@
-import { Sprite, Texture, Container } from "pixi.js";
+import { Sprite, Texture, Container } from 'pixi.js';
 import { getDeck, Card, Back } from './cards';
 
 export const cardTextures = new Map<string, Texture>();
@@ -8,7 +8,7 @@ const KEY_BLANK = 'BLANK';
 
 function setup() {
   const d = getDeck(true);
-  const keys = d.map(c =>c.toString());
+  const keys = d.map((c) => c.toString());
 
   for (const b of Object.values(Back)) {
     keys.push(b);
@@ -32,15 +32,15 @@ const BACK_IDX = 2;
 export function getCardVisual(c: Card) {
   const cv = new Container();
 
-  const shadow = new Sprite( cardTextures.get(KEY_SHADOW) );
+  const shadow = new Sprite(cardTextures.get(KEY_SHADOW));
   shadow.anchor.set(0.5);
   cv.addChild(shadow); // 0
 
-  const front = new Sprite( cardTextures.get( c.toString() ) );
+  const front = new Sprite(cardTextures.get(c.toString()));
   front.anchor.set(0.5);
   cv.addChild(front); // 1
 
-  const back = new Sprite( cardTextures.get(c.back) );
+  const back = new Sprite(cardTextures.get(c.back));
   back.anchor.set(0.5);
   cv.addChild(back); // 2
 
@@ -52,29 +52,33 @@ export function getCardVisual(c: Card) {
 
   c.setUpdateAndDispose(
     () => updateCardVisual(c, cv),
-    () => disposeCardVisual(cv)
+    () => disposeCardVisual(cv),
   );
-  
+
   return cv;
 }
 
-export function updateCardVisual(c:Card, cv:any) {
-  const wasBlank = cv.children[FRONT_IDX].texture.baseTexture.cacheId.includes('BLANK'); // TODO something simpler and/or more performant?
+export function updateCardVisual(c: Card, cv: any) {
+  const wasBlank =
+    cv.children[FRONT_IDX].texture.baseTexture.cacheId.includes('BLANK'); // TODO something simpler and/or more performant?
   const isBlank = !c.rank;
 
-  if ((c.facingDown && cv.children[FRONT_IDX].visible) || (!c.facingDown && cv.children[BACK_IDX].visible)) {
+  if (
+    (c.facingDown && cv.children[FRONT_IDX].visible) ||
+    (!c.facingDown && cv.children[BACK_IDX].visible)
+  ) {
     cv.children[FRONT_IDX].visible = !cv.children[FRONT_IDX].visible;
     cv.children[BACK_IDX].visible = !cv.children[BACK_IDX].visible;
   }
 
   if (wasBlank && !isBlank) {
-    const front = new Sprite( cardTextures.get( c.toString() ) );
+    const front = new Sprite(cardTextures.get(c.toString()));
     front.visible = !c.facingDown;
     front.anchor.set(0.5);
     cv.removeChildAt(1);
     cv.addChildAt(front, 1);
   } else if (!wasBlank && isBlank) {
-    const front = new Sprite( cardTextures.get(KEY_BLANK) );
+    const front = new Sprite(cardTextures.get(KEY_BLANK));
     front.visible = !c.facingDown;
     front.anchor.set(0.5);
     cv.removeChildAt(1);
@@ -90,6 +94,6 @@ export function updateCardVisual(c:Card, cv:any) {
   }
 }
 
-export function disposeCardVisual(cv:Container) {
+export function disposeCardVisual(cv: Container) {
   cv.parent.removeChild(cv);
 }

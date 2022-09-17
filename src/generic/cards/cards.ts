@@ -35,13 +35,13 @@ export class Card {
   rank?: Rank;
   back: Back;
   id: string;
-  facingDown: boolean = false;
+  facingDown = false;
   position: [number, number] = [0, 0];
-  rotation: number = 0;
-  onUpdate: ()=>void = ()=>{};
-  onDispose: ()=>void = ()=>{};
+  rotation = 0;
+  onUpdate: () => void = () => {};
+  onDispose: () => void = () => {};
 
-  constructor(id: string = '', back: Back = Back.Blue, suit?: Suit, rank?: Rank) {
+  constructor(id = '', back: Back = Back.Blue, suit?: Suit, rank?: Rank) {
     this.id = id ? id : uuid();
     this.back = back;
     this.suit = suit;
@@ -52,27 +52,27 @@ export class Card {
     //console.log(rank, this.facingDown, this);
   }
 
-  setPosition(x:number, y:number) {
+  setPosition(x: number, y: number) {
     this.position[0] = x;
     this.position[1] = y;
     this.onUpdate(); // TODO throttle on tick? use isDirty instead?
   }
 
-  setRotation(rotation:number) {
+  setRotation(rotation: number) {
     this.rotation = rotation;
     this.onUpdate();
   }
 
-  setRotationDegrees(degrees:number) {
+  setRotationDegrees(degrees: number) {
     this.setRotation(DEG_TO_RAD * degrees);
   }
 
-  setFacingDown(isDown:boolean) {
+  setFacingDown(isDown: boolean) {
     this.facingDown = isDown;
     this.onUpdate();
   }
 
-  enrich(suit:Suit, rank:Rank) {
+  enrich(suit: Suit, rank: Rank) {
     if (this.suit) throw new Error('Card already has a known value!');
     this.suit = suit;
     this.rank = rank;
@@ -93,8 +93,8 @@ export class Card {
 
   dispose() {
     this.onDispose();
-    this.onUpdate = ()=> {};
-    this.onDispose = ()=> {};
+    this.onUpdate = () => {};
+    this.onDispose = () => {};
   }
 
   setUpdateAndDispose(updateFn: () => void, disposeFn: () => void) {
@@ -104,7 +104,11 @@ export class Card {
   }
 }
 
-export function getDeck(withJokers: boolean, back: Back = Back.Blue, oddOfUnknown:number = 0): Card[] {
+export function getDeck(
+  withJokers: boolean,
+  back: Back = Back.Blue,
+  oddOfUnknown = 0,
+): Card[] {
   const cards: Card[] = [];
 
   for (const suit of Object.values(Suit)) {
@@ -115,10 +119,8 @@ export function getDeck(withJokers: boolean, back: Back = Back.Blue, oddOfUnknow
       )
         continue;
 
-      if (Math.random() < oddOfUnknown)
-        cards.push(new Card('', back));
-      else
-        cards.push(new Card('', back, suit, rank));
+      if (Math.random() < oddOfUnknown) cards.push(new Card('', back));
+      else cards.push(new Card('', back, suit, rank));
     }
   }
 
