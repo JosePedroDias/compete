@@ -1,0 +1,10 @@
+code {
+    background-color: #DDD;
+    border: 1px solid #777;
+    display: inline-block;
+}
+
+pre {
+    margin: 0;
+    font-weight: bold;
+}
