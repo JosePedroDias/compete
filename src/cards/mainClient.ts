@@ -43,21 +43,20 @@ for (const c of deck) {
   }
 }
 
-const CARDS_PER_HAND = 8;
+const CARDS_PER_HAND = 5;
 
 const hand1 = deck.splice(0, CARDS_PER_HAND);
 const hand2 = deck.splice(0, CARDS_PER_HAND);
 
 reorder(hand1, cardHeuristicFactory(false));
-console.log(hand1);
 reorderVisuals(hand1, app.stage);
 
 arc(deck, [W2, H2], [0.4, -0.4], 0, 0);
 
-arc(hand1, [W2, 0.85 * H], [20, 5], 0, 8);
+arc(hand1, [W2, 0.85 * H], [20, 4], 0, 6);
 
 face(hand2, true);
-arc(hand2, [W2, 0.15 * H], [-20, -5], 180, 8);
+arc(hand2, [W2, 0.15 * H], [-20, 4], 180, 6);
 
 // @ts-ignore
 window.d = deck;

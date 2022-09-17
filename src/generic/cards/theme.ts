@@ -1,4 +1,4 @@
-import { Sprite, Texture, Container, CubeResource } from 'pixi.js';
+import { Sprite, Texture, Container } from 'pixi.js';
 import { getDeck, Card, Back } from './cards';
 
 export const cardTextures = new Map<string, Texture>();

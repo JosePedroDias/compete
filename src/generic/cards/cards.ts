@@ -175,10 +175,12 @@ export function reorder(cards:Card[], heuristicFn:(c:Card)=>number) {
   cards.sort((a:Card, b:Card) => heuristicFn(a) - heuristicFn(b));
 }
 
-const _suitsOrder:string[] = Object.keys(Suit);
+const _suitsOrder:string[] = Object.values(Suit);
 const _rankOrder:string[] = [ Rank.Ace, Rank.King, Rank.Queen, Rank.Jack, Rank.Ten, Rank.Nine, Rank.Eight, Rank.Seven, Rank.Six, Rank.Five, Rank.Four, Rank.Three, Rank.Two, Rank.Joker ];
 export function cardHeuristicFactory(suitsFirst=true, suitsOrder:string[]=_suitsOrder, rankOrder:string[]=_rankOrder): (c:Card)=>number {
-  const suitScale = suitsFirst ? 100 : 1;
-  const rankScale = suitsFirst ? 1 : 100;
-  return (c) => suitScale * suitsOrder.indexOf(c.suit || '') + rankScale * rankOrder.indexOf(c.rank || '');
+  const suitScale = suitsFirst ? 20 : 1;
+  const rankScale = suitsFirst ?  1 : 4;
+  return (c) => 
+    suitScale * (suitsOrder.indexOf(c.suit || '') + 1) +
+    rankScale * (rankOrder.indexOf(c.rank || '') + 1);
 }
