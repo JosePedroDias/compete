@@ -1,27 +1,9 @@
+import { Board } from '../generic/Board';
 import { Room, Event, roomWrapper } from '../generic/uwsRoomWrapper';
-import { TicTacToeState } from "./TicTacToeState";
 
-/* const playersMap:{[key: string]: WebSocket2} = {};
-const orderOfPlay:string[] = [];
-const initialOrderOfPlay:string[] = [];
+type B = Board<number>;
 
-function getNextToPlay():string {
-  const next = orderOfPlay.shift();
-  // @ts-ignore
-  orderOfPlay.push(next);
-  // @ts-ignore
-  return next;
-}
-
-function getValueFromId(id:string):number {
-  const idx = initialOrderOfPlay.indexOf(id);
-  if (idx === -1) {
-    throw new Error('Unexpected id');
-  }
-  return idx + 1;
-} */
-
-roomWrapper<TicTacToeState>({
+roomWrapper<B>({
   wsOpts: {
     maxPayloadLength: 4 * 1024, // bytes?
     idleTimeout: 60, // secs?
@@ -30,18 +12,22 @@ roomWrapper<TicTacToeState>({
     maxRooms: 4,
     minPlayers: 2,
     maxPlayers: 2,
-    tickRate: 2
+    tickRate: 2,
   },
-  onGameStart(_room:Room) {
+  onGameStart(_room: Room):B {
     console.log('onGameStart');
-    return new TicTacToeState();
+    // @ts-ignore
+    return new Board<number>(3, 3, 0);
   },
-  onGameEnd(_room:Room, st:TicTacToeState) {
+  onGameEnd(_room: Room, _st:B) {
     console.log('onGameEnd');
-    return st;
   },
-  onGameTick(_room:Room, events:Event[], st:TicTacToeState) {
-    console.log('onGameTick', events.length);
+  onGameTick(_room: Room, events: Event[], st:B):B {
+    //console.log('onGameTick', events.length);
+    for (const { from, ts, data: { position } } of events) {
+      console.log(from, ts, position);
+      st.setCell(position[0], position[1], from);
+    }
     return st;
-  },
+  }
 });

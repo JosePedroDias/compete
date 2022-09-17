@@ -1,45 +1,51 @@
 export type GridOpts = {
-  onClick: (pos:[number, number])=>void;
-}
+  onClick: (pos: [number, number]) => void;
+};
 
-export function grid(w:number, h:number, opts: GridOpts): [HTMLElement, (pos:[number, number], opts:{value:any})=>void] {
+export function grid(
+  w: number,
+  h: number,
+  opts: GridOpts,
+): [HTMLElement, (pos: [number, number], opts: { value: any }) => void] {
   const gridEl = document.createElement('div');
   gridEl.className = 'grid';
-  
-  const cellEls:HTMLElement[] = [];
+
+  const cellEls: HTMLElement[] = [];
 
   let i = 0;
   for (let y = 0; y < h; ++y) {
-      let rowEl = document.createElement('div');
-      rowEl.className = 'row';
-      gridEl.appendChild(rowEl);
+    const rowEl = document.createElement('div');
+    rowEl.className = 'row';
+    gridEl.appendChild(rowEl);
 
-      for (let x = 0; x < w; ++x) {
-          const cellEl = document.createElement('div');
-          cellEl.className = 'cell';
-          cellEl.dataset.pos = `${x},${y}`;
-          cellEl.appendChild(document.createTextNode(' '));
-          rowEl.appendChild(cellEl);
-          cellEls.push(cellEl);
-          ++i;
-      }
+    for (let x = 0; x < w; ++x) {
+      const cellEl = document.createElement('div');
+      cellEl.className = 'cell';
+      cellEl.dataset.pos = `${x},${y}`;
+      cellEl.appendChild(document.createTextNode(' '));
+      rowEl.appendChild(cellEl);
+      cellEls.push(cellEl);
+      ++i;
+    }
   }
 
   gridEl.addEventListener('click', (ev) => {
-      const cellEl = ev.target as HTMLElement;
-      // @ts-ignore
-      const pos:[number, number] = cellEl.dataset.pos.split(',').map((c) => parseInt(c, 10));
-      opts.onClick(pos);
+    const cellEl = ev.target as HTMLElement;
+    // @ts-ignore
+    const pos: [number, number] = cellEl.dataset.pos
+      .split(',')
+      .map((c) => parseInt(c, 10));
+    opts.onClick(pos);
   });
 
-  function update(pos:[number, number], uOpts:{value:any}) {
+  function update(pos: [number, number], uOpts: { value: any }) {
     const data = `${pos[0]},${pos[1]}`;
-      const cellEl = cellEls.find((el) => el.dataset.pos === data);
-      // @ts-ignore
-      if (value) cellEl.firstChild.nodeValue = uOpts.value;
+    const cellEl = cellEls.find((el) => el.dataset.pos === data);
+    // @ts-ignore
+    if (value) cellEl.firstChild.nodeValue = uOpts.value;
   }
 
-  return [ gridEl, update ];
+  return [gridEl, update];
 }
 
 export function label(initialValue = ' '): [HTMLElement, Function] {
@@ -47,11 +53,11 @@ export function label(initialValue = ' '): [HTMLElement, Function] {
 
   el.innerHTML = initialValue;
 
-  function update(value:any) {
-      el.innerHTML = value;
+  function update(value: any) {
+    el.innerHTML = value;
   }
 
-  return [ el, update ];
+  return [el, update];
 }
 
 // type HashOfstring = {[key: string]: string};

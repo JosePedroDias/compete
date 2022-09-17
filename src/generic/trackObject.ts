@@ -3,10 +3,9 @@ tracks changes on 1st level objects (as records)
 works ok for array assignments and it's methods push, pop, shift, unshift
 
 EVENTUAL TODO
-- wrap tracking object values in object or array?
 - support slice, splice?
+- the sort part is irrelevant on ES2015 as Object.keys order is stable
 */
-
 
 export function trackObject(o: Object) {
   const yetToSync = new Map<string, any>();
@@ -16,12 +15,38 @@ export function trackObject(o: Object) {
   const SPECIALS = ['push', 'pop', 'shift', 'unshift'];
 
   function sync() {
+    // @ts-ignore
+    const childrenSyncs = Object.keys(o)
+      // @ts-ignore
+      .map((k) => o[k])
+      .filter((v) => v.sync)
+      .map((v) => v.sync());
+
     const arr = Array.from(yetToSync);
     yetToSync.clear();
+
+    if (childrenSyncs.length > 0) return { c: childrenSyncs, m: arr };
     return arr;
   }
 
-  function patch(diffs:[string,any][]) {
+  function patch(diffs: [string, any][]) {
+    // @ts-ignore
+    if (diffs.m) {
+      // @ts-ignore
+      const childrenToPatch = Object.keys(o)
+        // @ts-ignore
+        .map((k) => o[k])
+        .filter((v) => v.patch);
+      // @ts-ignore
+      for (const [idx, subDiff] of Object.entries(diffs.c)) {
+        // @ts-ignore
+        childrenToPatch[idx].patch(subDiff);
+      }
+
+      // @ts-ignore
+      diffs = diffs.m;
+    }
+
     for (const [k, v] of diffs) {
       if (isArray && SPECIALS.indexOf(k as string) !== -1) {
         // @ts-ignore
@@ -33,7 +58,7 @@ export function trackObject(o: Object) {
     }
   }
 
-  function special(methodName:string, v:any) {
+  function special(methodName: string, v: any) {
     yetToSync.set(methodName, v);
     // @ts-ignore
     return o[methodName](v);
@@ -52,15 +77,20 @@ export function trackObject(o: Object) {
         return target[k];
       }
     },
-    set(target:any, k, v): boolean {
+    set(target: any, k, v): boolean {
       if (typeof k === 'string') {
         if (target[k] !== v) yetToSync.set(k, v);
         target[k] = v;
         return true;
       }
       return false;
-    }
+    },
   });
 
   return proxy;
 }
+
+export type TO<T> = T & {
+  sync: () => [string, any][];
+  patch: (diffs: [string, any][]) => void;
+};

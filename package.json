@@ -10,11 +10,10 @@
         "dev": "vite",
         "build": "tsc && vite build",
         "preview": "vite preview",
-
+        "dev-server-tictactoe": "nodemon -e ts --exec \"npm run build-server && npm run run-server-tictactoe\"",
         "build-server": "rm -rf dist-server && tsc --build tsconfig.nodejs.json",
         "run-server-snake": "node --experimental-specifier-resolution=node dist-server/snake/mainServer.js",
         "run-server-tictactoe": "node --experimental-specifier-resolution=node dist-server/tictactoe/mainServer.js",
-
         "test": "vitest",
         "lint": "npx eslint src --fix",
         "prettier": "npx prettier src --check --write",
@@ -27,6 +26,7 @@
         "eslint-config-prettier": "^8.5.0",
         "eslint-plugin-import": "^2.26.0",
         "eslint-plugin-prettier": "^4.2.1",
+        "nodemon": "^2.0.19",
         "pixi.js": "^6.5.1",
         "prettier": "^2.7.1",
         "typescript": "^4.6.4",

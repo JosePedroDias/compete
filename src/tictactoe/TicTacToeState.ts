@@ -10,31 +10,58 @@ export const WON_SHAPE_DIAGONAL = 'DIAGONAL';
 
 export class TicTacToeState {
   board: Board<number> = new Board<number>(3, 3, CELL_EMPTY);
-  nextToPlay: string = '';
-  wonBy: string = '';
-  gameStarted: boolean = false;
-  gameEnded: boolean = false;
 
   private static rows: Position[][] = [
-    [[0, 0], [0, 1], [0, 2]],
-    [[1, 0], [1, 1], [1, 2]],
-    [[2, 0], [2, 1], [2, 2]]
+    [
+      [0, 0],
+      [0, 1],
+      [0, 2],
+    ],
+    [
+      [1, 0],
+      [1, 1],
+      [1, 2],
+    ],
+    [
+      [2, 0],
+      [2, 1],
+      [2, 2],
+    ],
   ];
 
   private static columns: Position[][] = [
-    [[0, 0], [1, 0], [2, 0]],
-    [[0, 1], [1, 1], [2, 1]],
-    [[0, 2], [1, 2], [2, 2]]
+    [
+      [0, 0],
+      [1, 0],
+      [2, 0],
+    ],
+    [
+      [0, 1],
+      [1, 1],
+      [2, 1],
+    ],
+    [
+      [0, 2],
+      [1, 2],
+      [2, 2],
+    ],
   ];
 
   private static diagonals: Position[][] = [
-    [[0, 0], [1, 1], [2, 2]],
-    [[0, 2], [1, 1], [2, 0]]
+    [
+      [0, 0],
+      [1, 1],
+      [2, 2],
+    ],
+    [
+      [0, 2],
+      [1, 1],
+      [2, 0],
+    ],
   ];
 
   private hasOneOfSequences(sequences: Position[][], value: number): boolean {
-    outer:
-    for (const seq of sequences) {
+    outer: for (const seq of sequences) {
       for (const [x, y] of seq) {
         if (this.board.getCell(x, y) !== value) {
           break outer;
@@ -75,7 +102,7 @@ export class TicTacToeState {
     return true;
   }
 
-  setCell(pos: Position, value: number):void {
+  setCell(pos: Position, value: number): void {
     if (!this.isEmpty(pos)) throw new Error('cell must be empty!');
     this.board.setCell(pos[0], pos[1], value);
   }

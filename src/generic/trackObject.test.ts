@@ -1,10 +1,10 @@
 import { expect, it } from 'vitest';
 
-import { trackObject } from './Record';
+import { trackObject } from './trackObject';
 
 it('trackObject sync', () => {
-  const o = { x:2, y:'x' };
-  const p:any = trackObject(o);
+  const o = { x: 2, y: 'x' };
+  const p: any = trackObject(o);
   expect(o.x).toEqual(2);
   expect(o.y).toEqual('x');
   // @ts-ignore
@@ -21,25 +21,27 @@ it('trackObject sync', () => {
 });
 
 it('trackObject patch', () => {
-  const o = { x:2, y:'x' };
-  const p:any = trackObject(o);
+  const o = { x: 2, y: 'x' };
+  const p: any = trackObject(o);
 
-  p.patch([['x', 3], ['y', 'X']]);
+  p.patch([
+    ['x', 3],
+    ['y', 'X'],
+  ]);
   expect(o.x).toEqual(3);
   expect(o.y).toEqual('X');
   expect(p.x).toEqual(3);
   expect(p.y).toEqual('X');
 });
 
-
 it('trackObject array methods', () => {
   const arr = ['a', 'b'];
-  const arr2:any = trackObject(Array.from(arr));
-  const p:any = trackObject(arr);
+  const arr2: any = trackObject(Array.from(arr));
+  const p: any = trackObject(arr);
 
   p.push('c'); // a b c
   p.shift(); // b c
-  p.unshift('d') // d b c
+  p.unshift('d'); // d b c
   p.pop(); // d b
 
   expect(arr).toEqual(['d', 'b']);
@@ -51,21 +53,25 @@ it('trackObject array methods', () => {
 });
 
 it('2 levels', () => {
-  const st:any = trackObject({
+  const st: any = trackObject({
     a: 1,
-    b: trackObject(['c'])
+    b: trackObject(['c']),
   });
 
-  expect(st).toEqual({a:1, b:['c']});
+  const st2: any = trackObject({
+    a: 1,
+    b: trackObject(['c']),
+  });
+
+  expect(st).toEqual({ a: 1, b: ['c'] });
 
   st.a = 2;
   st.b.push('d');
 
-  expect(st).toEqual({a:2, b:['c', 'd']});
+  expect(st).toEqual({ a: 2, b: ['c', 'd'] });
 
-  expect(st.sync()).toEqual([['a', 2]]);
-  expect(st.b.sync()).toEqual([['push', 'd']]);
-  
-  expect(st.sync()).toEqual([]);
-  expect(st.b.sync()).toEqual([]);
+  const sync = st.sync();
+  expect(sync).toEqual({ c: [[['push', 'd']]], m: [['a', 2]] });
+  st2.patch(sync);
+  expect(st).toEqual(st2);
 });

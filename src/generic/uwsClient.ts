@@ -1,6 +1,9 @@
 import { pack, unpack } from 'msgpackr';
 
-export function uwsClient(onMessage:(data:any)=>void, address:string = 'ws://127.0.0.1:9001') {
+export function uwsClient(
+  onMessage: (data: any) => void,
+  address = 'ws://127.0.0.1:9001',
+) {
   const ws = new WebSocket(address);
   ws.binaryType = 'arraybuffer'; // to get an arraybuffer instead of a blob
 
@@ -24,6 +27,6 @@ export function uwsClient(onMessage:(data:any)=>void, address:string = 'ws://127
   return {
     send(o: any): void {
       ws.send(pack(o));
-    }
-  }
+    },
+  };
 }
