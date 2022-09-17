@@ -1,7 +1,7 @@
 import { uwsClient } from '../generic/uwsClient';
 
 import { grid, label } from './ui';
-import { Board } from '../generic/Board';
+import { getBoard, indexToPos, T3Board } from './T3Board';
 
 const CLEAN_LABEL_MS = 2500;
 let cleanTimer: any;
@@ -10,7 +10,6 @@ const boardEl = document.getElementById('board') as HTMLElement;
 
 function onClick(position: [number, number]) {
   ws.send({ op: 'play', position });
-  //updateGrid(position, { value: 'X' });
 }
 
 const [labelEl, updateLabel_] = label();
@@ -31,20 +30,45 @@ const [gridEl, updateGrid] = grid(3, 3, { onClick });
 document.body.appendChild(gridEl);
 
 //const st = trackObject(new TicTacToeState());
-const st = new Board<number>(3, 3, 0);
+const st:T3Board = getBoard();
 
+let myId:number;
 const ws = uwsClient((msg) => {
-  if (msg.op === 'update-state') {
-    const diffs = msg.state;
-    // @ts-ignore
-    st.patch(diffs);
-    for (const [k, v] of diffs) {
-      //console.log(k, v);
-      const y = Math.floor(k / 3);
-      const x = k - y * 3;
-      //console.log({k, x, y, v});
-      updateGrid([x, y], { value: v });
-    }
-    //console.log(st.array);
+  switch (msg.op) {
+    case 'announce':
+      updateLabel(msg.message);
+      console.warn(msg.message);
+      break;
+    case 'bad-move':
+      console.warn(msg.message);
+      break;
+    case 'my-id':
+      myId = msg.id;
+      document.title = `id:${myId}`;
+      break;
+    case 'update-state':
+      {
+        const diffs = msg.state;
+        // @ts-ignore
+        st.patch(diffs);
+
+        const cellDiffs = diffs.c[0];
+        for (const [k, v] of cellDiffs) {
+          const [x, y] = indexToPos(+k);
+          updateGrid([x, y], { value: v });
+        }
+
+        const nextToPlayDiffs = diffs.c[1];
+        if (nextToPlayDiffs.length > 0) {
+          updateLabel(`next to play is ${st.nextToPlay[0]}`);
+        }
+
+        if (cellDiffs.length || nextToPlayDiffs.length) {
+          console.log(JSON.parse(JSON.stringify(st)));
+        }
+      }
+      break;
+    default:
+      console.warn(`unsupported opcode: ${msg.op}`);
   }
 });

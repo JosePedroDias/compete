@@ -80,9 +80,9 @@ export function getBoard():T3Board {
   cells.fill(0);
 
   const o = Object.create(api);
-  o.nextToPlay = trackObject([]);
+  o.cells = trackObject(cells); // diffs.c[0]
+  o.nextToPlay = trackObject([]); // diffs.c[1]
   o.whoWon = 0;
-  o.cells = trackObject(cells);
 
   return trackObject(o) as T3Board;
 }
