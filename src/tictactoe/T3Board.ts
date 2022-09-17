@@ -10,24 +10,79 @@ export function indexToPos(idx:number):Position {
   ];
 }
 
-export function posToIndex([x, y]:Position):number {
+export function posToIndex(x:number, y:number):number {
   return y*3 + x;
 }
+
+type Seq = [number, number, number];
+
+const HORIZONTALS:Seq[] = [
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8]
+];
+
+const VERTICALS:Seq[] = [
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8]
+];
+
+const DIAGONALS:Seq[] = [
+  [0, 4, 8],
+  [2, 4, 6]
+];
+
+const ALL_SEQUENCES:Seq[] = [...HORIZONTALS, ...VERTICALS, ...DIAGONALS];
 
 export type T3Board = {
   sync: ()=>any,
   patch: (diffs:any)=>void,
+  
   cells: [number, number, number, number, number, number, number, number, number],
-  nextToPlay:number[],
-  whoWon:number
+  nextToPlay: number[],
+  whoWon: number,
+
+  getCell(x:number, y:number):number;
+  setCell(x:number, y:number, v:number):void;
+  isFull():boolean;
+  hasWon(v:number):boolean;
 }
+
+const api = {
+  // @ts-ignore
+  getCell: function (x:number, y:number):number { return this.cells[ posToIndex(x, y) ] },
+  // @ts-ignore
+  setCell: function (x:number, y:number, v:number):void { this.cells[ posToIndex(x, y) ] = v; },
+  isFull: function():boolean {
+    // @ts-ignore
+    for (const c of this.cells) {
+      if (c === 0) return false;
+    }
+    return true;
+  },
+  hasWon: function(v:number):boolean {
+    // @ts-ignore
+    for (const seq of ALL_SEQUENCES) {
+      inner:
+      for (const [n, idx] of Object.entries(seq)) {
+        // @ts-ignore
+        if (this.cells[idx] !== v) break inner;
+        if (n === '2') return true;
+      }
+    }
+    return false;
+  }
+};
 
 export function getBoard():T3Board {
   const cells = new Array(9);
   cells.fill(0);
-  return trackObject({
-    nextToPlay: trackObject([]),
-    whoWon: 0,
-    cells: trackObject(cells)
-  }) as T3Board;
+
+  const o = Object.create(api);
+  o.nextToPlay = trackObject([]);
+  o.whoWon = 0;
+  o.cells = trackObject(cells);
+
+  return trackObject(o) as T3Board;
 }
