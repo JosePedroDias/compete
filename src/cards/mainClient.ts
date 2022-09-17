@@ -24,13 +24,13 @@ const txt = new Text('FPS', {
 txt.position.set(20, 20);
 app.stage.addChild(txt);
 
+const deck = getDeck(false, undefined, 0.33);
+
 const minX = 90;
 const maxX = 960;
 const minY = 110;
 const dX = 70;
 const dY = 180;
-
-const deck = getDeck(false);
 
 let x = minX;
 let y = minY;
@@ -48,4 +48,3 @@ for (const c of deck) {
 
 // @ts-ignore
 window.d = deck;
-console.log(deck);

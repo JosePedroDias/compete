@@ -30,17 +30,9 @@ export enum Back {
   Red = 'B2',
 }
 
-/* export function getSuitStrings():string[] {
-  return Object.values(Suit);
-}
-
-export function getRankStrings():string[] {
-  return Object.values(Rank);
-}
- */
 export class Card {
-  suit: Suit;
-  rank: Rank;
+  suit?: Suit;
+  rank?: Rank;
   back: Back;
   id: string;
   facingDown: boolean = false;
@@ -49,11 +41,15 @@ export class Card {
   onUpdate: ()=>void = ()=>{};
   onDispose: ()=>void = ()=>{};
 
-  constructor(suit: Suit, rank: Rank, back: Back, id: string = '') {
+  constructor(id: string = '', back: Back = Back.Blue, suit?: Suit, rank?: Rank) {
+    this.id = id ? id : uuid();
+    this.back = back;
     this.suit = suit;
     this.rank = rank;
-    this.back = back;
-    this.id = id ? id : uuid();
+    if (!rank) {
+      this.facingDown = true;
+    }
+    //console.log(rank, this.facingDown, this);
   }
 
   setPosition(x:number, y:number) {
@@ -76,7 +72,22 @@ export class Card {
     this.onUpdate();
   }
 
+  enrich(suit:Suit, rank:Rank) {
+    if (this.suit) throw new Error('Card already has a known value!');
+    this.suit = suit;
+    this.rank = rank;
+    this.onUpdate();
+  }
+
+  forget() {
+    if (!this.suit) throw new Error('Card had no known value!');
+    this.suit = undefined;
+    this.rank = undefined;
+    this.onUpdate();
+  }
+
   toString() {
+    if (!this.rank) return `BLANK`;
     return `${this.suit}${this.rank}`;
   }
 
@@ -93,7 +104,7 @@ export class Card {
   }
 }
 
-export function getDeck(withJokers: boolean, back: Back = Back.Blue): Card[] {
+export function getDeck(withJokers: boolean, back: Back = Back.Blue, oddOfUnknown:number = 0): Card[] {
   const cards: Card[] = [];
 
   for (const suit of Object.values(Suit)) {
@@ -103,7 +114,11 @@ export function getDeck(withJokers: boolean, back: Back = Back.Blue): Card[] {
         (!withJokers || suit === Suit.Hearts || suit === Suit.Clubs)
       )
         continue;
-      cards.push(new Card(suit, rank, back));
+
+      if (Math.random() < oddOfUnknown)
+        cards.push(new Card('', back));
+      else
+        cards.push(new Card('', back, suit, rank));
     }
   }
 
