@@ -4,6 +4,7 @@ export function uwsClient(
   onMessage: (data: any) => void,
   address = 'ws://127.0.0.1:9001',
 ) {
+  // @ts-ignore
   const ws = new WebSocket(address);
   ws.binaryType = 'arraybuffer'; // to get an arraybuffer instead of a blob
 
@@ -15,11 +16,11 @@ export function uwsClient(
     console.log('close');
   });
 
-  ws.addEventListener('error', (ev) => {
+  ws.addEventListener('error', (ev:any) => {
     console.error(ev);
   });
 
-  ws.addEventListener('message', (ev) => {
+  ws.addEventListener('message', (ev:any) => {
     const data = unpack(new Uint8Array(ev.data));
     onMessage(data);
   });

@@ -17,6 +17,9 @@
         "run-server-tictactoe": "node --experimental-specifier-resolution=node dist-server/tictactoe/mainServer.js",
         "run-server-snake": "node --experimental-specifier-resolution=node dist-server/snake/mainServer.js",
         "run-server-gofish": "node --experimental-specifier-resolution=node dist-server/gofish/mainServer.js",
+        "run-bot-tictactoe": "node --experimental-specifier-resolution=node dist-server/benchmark/tictactoeBot.js",
+        "run-bot-snake": "node --experimental-specifier-resolution=node dist-server/benchmark/snakeBot.js",
+        "run-bot-gofish": "node --experimental-specifier-resolution=node dist-server/benchmark/goFishBot.js",
         "test": "vitest",
         "lint": "npx eslint src --fix",
         "prettier": "npx prettier src --check --write",
@@ -38,8 +41,10 @@
         "vitest": "^0.21.1"
     },
     "dependencies": {
+        "@types/ws": "^8.5.3",
         "msgpackr": "^1.7.0-alpha3",
         "uuid": "^8.3.2",
-        "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.10.0"
+        "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.10.0",
+        "ws": "^8.8.1"
     }
 }

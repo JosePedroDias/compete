@@ -54,20 +54,11 @@ send(o:any) // sends data with msgpack
 ```
 
 
-
-
-has some design ideas from nakama (trying to keep an aseptic API) and some from coliseus (efficient state management)
-
-- trackObject - allows diffing change between sync() calls. if objects or arrays (children) as wrapped too, the diff recurses properly.
-
-- card features a forget/recover logic to differentiate between the perspective of an owner vs opponent.
-
-
 # Other goodies
 
 ## sync/patch objects and arrays between server and clients
 
-if you wrap an array or object with trackObject, it will back sure attribute changes (either object attributes or array positions) will get tracked
+if you wrap an array or object with trackObject, it will make sure attribute changes (either object attributes or array positions) will get tracked
 and for arrays the most relevant ops are abstracted too (`push`/`pop`, `shift`/`unshift`, `insertAt`/`removeAt`)
 
 by the time the `.sync()` function is called, all changes since the last sync are given to you to send over the wire and apply with `.patch()`
