@@ -22,31 +22,30 @@ function processCard(c: Card) {
 function play() {
   //console.log(st);
 
-  const participantIds = st.hands.map(
-    (h:Card[]) => h[0].owner as number
-  );
+  const participantIds = st.hands.map((h: Card[]) => h[0].owner as number);
 
-  const otherParticipantIds = participantIds.filter(id => id !== myId);
+  const otherParticipantIds = participantIds.filter((id) => id !== myId);
 
   const myHandIndex = participantIds.indexOf(myId);
 
   const myCards = st.hands[myHandIndex];
 
   //console.log(myCards);
-  console.log(myCards.map(c => c.toString()));
+  console.log(myCards.map((c) => c.toString()));
 
-  const idx = Math.floor( Math.random() * myCards.length);
+  const idx = Math.floor(Math.random() * myCards.length);
 
   const card = myCards[idx];
-  const to = otherParticipantIds[ Math.floor( Math.random() * otherParticipantIds.length) ];
+  const to =
+    otherParticipantIds[Math.floor(Math.random() * otherParticipantIds.length)];
 
   ws.send({ op: 'ask', card: card.id, to });
 }
 
-let timer:NodeJS.Timer;
+let timer: NodeJS.Timer;
 
 // @ts-ignore
-const ws = uwsClient((msg:any) => {
+const ws = uwsClient((msg: any) => {
   switch (msg.op) {
     case 'my-id':
       myId = msg.id;
@@ -62,7 +61,7 @@ const ws = uwsClient((msg:any) => {
         const st0 = msg.state;
         st = {
           stockPile: st0.stockPile.map(processCard),
-          hands: st0.hands.map((h:any) => h.map(processCard)),
+          hands: st0.hands.map((h: any) => h.map(processCard)),
         };
 
         if (!timer) {

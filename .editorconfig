@@ -9,6 +9,6 @@ insert_final_newline = true
 [*.{js,ts,json,md}]
 charset = utf-8
 
-[*.ts]
+[*.{ts,js}]
 indent_style = space
 indent_size = 2

@@ -121,4 +121,22 @@ npm run dev
 
 ## build
 
-TODO!
+```
+npm run build-server
+
+npm run run-server-tictactoe
+# or
+npm run run-server-snake
+# or
+npm run run-server-gofish
+
+## (optional)
+npm run run-bot-tictactoe
+# or
+npm run run-bot-snake
+# or
+npm run run-bot-gofish
+
+npm run build
+npm run preview
+```

@@ -6,35 +6,47 @@ import { getBoard, indexToPos, T3Board } from '../tictactoe/T3Board';
 // @ts-ignore
 global.WebSocket = WebSocket;
 
-function renderBoard(st:{cells:[number, number, number, number, number, number, number, number, number]}):void {
+function renderBoard(st: {
+  cells: [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+  ];
+}): void {
   const c = st.cells;
   console.log(`${c[0]} ${c[1]} ${c[2]}
 ${c[3]} ${c[4]} ${c[5]}
-${c[6]} ${c[7]} ${c[8]}`)
+${c[6]} ${c[7]} ${c[8]}`);
 }
 
-function updateLabel(msg:string) {
+function updateLabel(msg: string) {
   console.log(`update label: ${msg}`);
-};
+}
 
-function updateGrid(pos:[number,number], o:{value:string}):void {
+function updateGrid(pos: [number, number], o: { value: string }): void {
   const [x, y] = pos;
   const value = o.value;
   console.log(`update grid: ${x}, ${y}: ${value}`);
-};
+}
 
 const st: T3Board = getBoard();
 let myId: number;
 
 function play() {
-  const x = Math.floor( Math.random() * 3);
-  const y = Math.floor( Math.random() * 3);
+  const x = Math.floor(Math.random() * 3);
+  const y = Math.floor(Math.random() * 3);
   ws.send({ op: 'play', position: [x, y] });
 }
 
-let timer:NodeJS.Timer;
+let timer: NodeJS.Timer;
 
-const ws = uwsClient((msg:any) => {
+const ws = uwsClient((msg: any) => {
   switch (msg.op) {
     case 'announce':
       updateLabel(msg.message);

@@ -12,14 +12,14 @@ let myId: number;
 const KEYS = ['up', 'down', 'left', 'right'];
 
 function play() {
-  const keyIdx = Math.floor( Math.random() * 4);
+  const keyIdx = Math.floor(Math.random() * 4);
   const key = KEYS[keyIdx];
   ws.send({ op: 'key', key });
 }
 
-let timer:NodeJS.Timer;
+let timer: NodeJS.Timer;
 
-const ws = uwsClient((msg:any) => {
+const ws = uwsClient((msg: any) => {
   switch (msg.op) {
     case 'own-id':
       myId = msg.id;

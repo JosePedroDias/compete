@@ -10,7 +10,9 @@ node dist-server/benchmark/bots.js gofish 2
 
 const processes = [];
 
-const args = process.argv.slice(2).map((n:any) => isFinite(n) ? parseInt(n, 10) : n);
+const args = process.argv
+  .slice(2)
+  .map((n: any) => (isFinite(n) ? parseInt(n, 10) : n));
 
 const [gameName, nrInstances] = args;
 
@@ -27,7 +29,7 @@ for (let i = 0; i < nrInstances; ++i) {
     proc.stdout.on('data', (data) => {
       console.log(`#${i} OUT: ${data}`);
     });
-    
+
     proc.stderr.on('data', (data) => {
       console.error(`#${i} ERR: ${data}`);
     });

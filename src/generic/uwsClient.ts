@@ -16,11 +16,11 @@ export function uwsClient(
     console.log('close');
   });
 
-  ws.addEventListener('error', (ev:any) => {
+  ws.addEventListener('error', (ev: any) => {
     console.error(ev);
   });
 
-  ws.addEventListener('message', (ev:any) => {
+  ws.addEventListener('message', (ev: any) => {
     const data = unpack(new Uint8Array(ev.data));
     onMessage(data);
   });
