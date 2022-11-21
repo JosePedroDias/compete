@@ -1,4 +1,4 @@
-import { Board, Position } from 'compete-utils/dist/Board';
+import { Board, Position } from 'compete-utils';
 
 export const CELL_EMPTY = 0;
 export const CELL_CROSS = 1;

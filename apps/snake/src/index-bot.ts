@@ -1,6 +1,6 @@
 import WebSocket from 'ws';
-import { competeClient } from 'compete-client/dist';
-import { Board } from 'compete-utils/dist/Board';
+import { competeClient } from 'compete-client';
+import { Board } from 'compete-utils';
 
 // @ts-ignore
 global.WebSocket = WebSocket;

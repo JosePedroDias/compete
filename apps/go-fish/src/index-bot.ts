@@ -1,7 +1,7 @@
 import WebSocket from 'ws';
 
-import { competeClient } from 'compete-client/dist/index';
-import { Card } from 'compete-utils/dist/cards/cards';
+import { competeClient } from 'compete-client';
+import { Card } from 'compete-utils';
 import { GoFishState } from './GoFishState';
 
 // @ts-ignore

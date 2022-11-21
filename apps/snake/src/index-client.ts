@@ -1,5 +1,5 @@
-import { competeClient } from 'compete-client/dist/index';
-import { Board } from 'compete-utils/dist/Board';
+import { competeClient } from 'compete-client';
+import { Board } from 'compete-utils';
 
 let board: Board<string>;
 

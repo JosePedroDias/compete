@@ -1,4 +1,4 @@
-import { competeClient } from 'compete-client/dist/index';
+import { competeClient } from 'compete-client';
 
 import { grid, label } from './ui';
 import { getBoard, indexToPos, T3Board } from './T3Board';

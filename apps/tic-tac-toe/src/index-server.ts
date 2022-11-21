@@ -1,5 +1,6 @@
+import { compete, Room, Event } from 'compete-server';
+
 import { T3Board, getBoard } from './T3Board';
-import { compete, Room, Event } from 'compete-server/dist/index';
 
 const { idToWsInstance, broadcast } = compete<T3Board>({
   wsOpts: {

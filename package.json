@@ -1,16 +1,19 @@
 {
-    "private": true,
-    "workspaces": [
-        "apps/*",
-        "packages/*"
-    ],
-    "scripts": {
-        "build": "turbo run build",
-        "docs": "turbo run docs",
-        "format": "turbo run format"
-    },
-    "devDependencies": {
-        "turbo": "latest"
-    },
-    "packageManager": "npm@9.0.0"
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "all": "npm run format && npm run test && npm run build && npm run build-server && npm run docs",
+    "format": "turbo run format",
+    "test": "turbo run test",
+    "build": "turbo run build",
+    "build-server": "turbo run build",
+    "docs": "turbo run docs"
+  },
+  "devDependencies": {
+    "turbo": "latest"
+  },
+  "packageManager": "npm@9.0.0"
 }

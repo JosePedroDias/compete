@@ -1,6 +1,5 @@
-//import { compete, WebSocket2 } from 'compete-server/dist/index';
-import { wrapper, WebSocket2 } from 'compete-server/dist/competeWrapper';
-import { Board } from 'compete-utils/dist/Board';
+import { wrapper, WebSocket2 } from 'compete-server';
+import { Board } from 'compete-utils';
 import { Snake, CHAR_EMPTY, CHAR_FOOD, CHAR_OBSTACLE } from './Snake';
 
 const W = 80;
