@@ -8,8 +8,10 @@
         ],
         "types": ["node"],
         "moduleResolution": "Node",
+        "declaration": true,
         "strict": true,
         "sourceMap": true,
+        "composite": true,
         "resolveJsonModule": true,
         "isolatedModules": true,
         "esModuleInterop": true,
@@ -18,9 +20,11 @@
         "noUnusedParameters": true,
         "noImplicitReturns": true,
         "skipLibCheck": true,
-        "outDir": "dist"
+        "outDir": "dist",
+        "rootDir": "src"
     },
     "include": [
         "src/**/*.ts"
-    ]
+    ],
+    "exclude": ["node_modules", "dist"]
 }

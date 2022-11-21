@@ -1,5 +1,5 @@
 import { Application, Container, DEG_TO_RAD, utils } from 'pixi.js';
-import { competeClient } from 'compete-client/src/index';
+import { competeClient } from 'compete-client/dist/index';
 
 import { Card } from 'compete-utils/src/cards/cards';
 import { getCardVisual } from 'compete-utils/src/cards/theme';

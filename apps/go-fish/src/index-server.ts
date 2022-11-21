@@ -1,4 +1,4 @@
-import { compete, Room, Event } from 'compete-server/src/index';
+import { compete, Room, Event } from 'compete-server';
 import { getBasicSetup, getView } from './GoFishState';
 
 const { /*idToWsInstance,*/ broadcast } = compete<any>({
