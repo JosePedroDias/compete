@@ -4,7 +4,7 @@ import {
   shuffle,
   dealCards,
   Card,
-} from '../generic/cards/cards';
+} from 'compete-utils/src/cards/cards';
 
 const W2 = 1280 / 2;
 const H2 = 1024 / 2; // TODO SQUARE?

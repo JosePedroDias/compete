@@ -1,8 +1,8 @@
 import { Application, Container, DEG_TO_RAD, utils } from 'pixi.js';
-import { uwsClient } from '../generic/uwsClient';
+import { competeClient } from 'compete-client/src/index';
 
-import { Card } from '../generic/cards/cards';
-import { getCardVisual } from '../generic/cards/theme';
+import { Card } from 'compete-utils/src/cards/cards';
+import { getCardVisual } from 'compete-utils/src/cards/theme';
 import { GoFishState } from './GoFishState';
 
 utils.skipHello();
@@ -20,6 +20,7 @@ const app = new Application({
   autoDensity: true,
 });
 
+// @ts-ignore
 document.body.appendChild(app.view);
 
 const tableCtn = new Container();
@@ -62,7 +63,7 @@ function processCard(c: Card) {
 
 let myId: number;
 let st: GoFishState;
-const ws = uwsClient((msg) => {
+const ws = competeClient((msg) => {
   switch (msg.op) {
     case 'my-id':
       myId = msg.id;

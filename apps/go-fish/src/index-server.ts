@@ -1,7 +1,7 @@
-import { Room, Event, roomWrapper } from '../generic/uwsRoomWrapper';
+import { compete, Room, Event } from 'compete-server/src/index';
 import { getBasicSetup, getView } from './GoFishState';
 
-const { /*idToWsInstance,*/ broadcast } = roomWrapper<any>({
+const { /*idToWsInstance,*/ broadcast } = compete<any>({
   wsOpts: {
     maxPayloadLength: 4 * 1024, // bytes?
     idleTimeout: 60, // secs?
