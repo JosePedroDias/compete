@@ -1,6 +1,6 @@
 # compete server
 
-Be sure to visit the [docs](docs/index.html).
+Be sure to visit the [docs](https://josepedrodias.github.io/compete/packages/compete-server/docs/index.html).
 
 
 ## group players in rooms

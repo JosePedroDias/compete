@@ -2,7 +2,7 @@
 
 This is the home of a couple of optional features that go well with **compete**.
 
-Be sure to visit the [docs](docs/index.html).
+Be sure to visit the [docs](https://josepedrodias.github.io/compete/packages/compete-utils/docs/index.html).
 
 ## sync/patch objects and arrays between server and clients
 
