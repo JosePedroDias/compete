@@ -98,7 +98,7 @@ const { idToWsInstance, broadcast } = wrapper({
         console.log(`unsupported opcode: ${data.op}`);
     }
   },
-  onLeave(ws: WebSocket2, _code:any) {
+  onLeave(ws: WebSocket2, _code: any) {
     removeSnake(ws.id);
   },
 });

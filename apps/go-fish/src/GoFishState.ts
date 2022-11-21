@@ -1,5 +1,11 @@
 //import { cards } from 'compete-utils';
-import { Card, getDeck, dealCards, shuffle, cardHeuristicFactory } from 'compete-utils/dist/cards/cards';
+import {
+  Card,
+  getDeck,
+  dealCards,
+  shuffle,
+  cardHeuristicFactory,
+} from 'compete-utils/dist/cards/cards';
 
 const W2 = 1280 / 2;
 const H2 = 1024 / 2; // TODO SQUARE?

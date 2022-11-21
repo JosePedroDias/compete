@@ -20,18 +20,19 @@
     "format": "npm run prettier && npm run lint"
   },
   "devDependencies": {
-    "eslint": "^8.28.0",
+    "@types/ws": "^8.5.3",
+    "@typescript-eslint/eslint-plugin": "^5.43.0",
     "eslint-config-custom": "*",
-    "tsconfig": "*",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint": "^8.28.0",
     "typescript": "^4.9.3",
     "vite": "^3.2.4",
-    "@types/ws": "^8.5.3",
     "ws": "^8.11.0"
   },
   "dependencies": {
-    "pixi.js": "^7.0.4",
     "compete-client": "*",
     "compete-server": "*",
-    "compete-utils": "*"
+    "compete-utils": "*",
+    "pixi.js": "^7.0.4"
   }
 }
