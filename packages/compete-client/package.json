@@ -13,7 +13,7 @@
     "lint": "npx eslint src --fix",
     "prettier": "npx prettier src --check --write",
     "format": "npm run prettier && npm run lint",
-    "docs": "npx typedoc src/index.ts"
+    "docs": "npx typedoc --disableSources src/index.ts"
   },
   "devDependencies": {
     "@types/uuid": "^8.3.4",
