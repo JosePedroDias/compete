@@ -1,5 +1,5 @@
 {
-    "name": "compete-server",
+    "name": "compete-client",
     "version": "0.0.0",
     "main": "./index.ts",
     "types": "./index.ts",
@@ -20,8 +20,6 @@
         "@types/uuid": "^8.3.4"
     },
     "dependencies": {
-        "msgpackr": "^1.8.0",
-        "uuid": "^9.0.0",
-        "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.15.0"
+        "msgpackr": "^1.8.0"
     }
 }

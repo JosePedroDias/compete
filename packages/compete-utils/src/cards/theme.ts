@@ -62,7 +62,7 @@ export function getCardVisual(
 
   if (onClick) {
     cv.interactive = true;
-    cv.buttonMode = true;
+    //cv.buttonMode = true;
     cv.on('pointerdown', () => onClick(c, cv));
   }
 

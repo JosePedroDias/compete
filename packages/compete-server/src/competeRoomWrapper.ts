@@ -1,5 +1,5 @@
-import { wrapper, WebSocket2, WrapperObj } from './uwsWrapper';
-export type { WebSocket2 } from './uwsWrapper';
+import { wrapper, WebSocket2, WrapperObj } from './competeWrapper';
+export type { WebSocket2 } from './competeWrapper';
 
 export type RoomOpts = {
   minPlayers: number;
