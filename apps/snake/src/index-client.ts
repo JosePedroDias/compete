@@ -1,6 +1,5 @@
-import { uwsClient } from '../generic/uwsClient';
-
-import { Board } from '../generic/Board';
+import { competeClient } from 'compete-client/dist/index';
+import { Board } from 'compete-utils/dist/Board';
 
 let board: Board<string>;
 
@@ -16,7 +15,7 @@ document.body.addEventListener('keydown', (ev) => {
 
 const boardEl = document.getElementById('board') as HTMLElement;
 
-const ws = uwsClient((msg) => {
+const ws = competeClient((msg) => {
   switch (msg.op) {
     case 'own-id':
       break;

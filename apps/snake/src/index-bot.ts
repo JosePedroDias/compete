@@ -1,6 +1,6 @@
 import WebSocket from 'ws';
-import { uwsClient } from '../generic/uwsClient';
-import { Board } from '../generic/Board';
+import { competeClient } from 'compete-client/dist';
+import { Board } from 'compete-utils/dist/Board';
 
 // @ts-ignore
 global.WebSocket = WebSocket;
@@ -19,7 +19,7 @@ function play() {
 
 let timer: NodeJS.Timer;
 
-const ws = uwsClient((msg: any) => {
+const ws = competeClient((msg: any) => {
   switch (msg.op) {
     case 'own-id':
       myId = msg.id;

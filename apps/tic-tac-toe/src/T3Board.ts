@@ -1,4 +1,4 @@
-import { trackObject } from '../generic/trackObject';
+import { trackObject } from 'compete-utils/dist/trackObject';
 
 export type Position = [number, number];
 

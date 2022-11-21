@@ -28,6 +28,7 @@
     ],
     "exclude": [
         "node_modules", "dist",
-        "src/index-client.ts"
+        "src/index-client.ts",
+        "src/ui.ts"
     ],
 }

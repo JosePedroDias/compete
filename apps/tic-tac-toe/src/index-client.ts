@@ -1,4 +1,4 @@
-import { uwsClient } from '../generic/uwsClient';
+import { competeClient } from 'compete-client/dist/index';
 
 import { grid, label } from './ui';
 import { getBoard, indexToPos, T3Board } from './T3Board';
@@ -30,7 +30,7 @@ document.body.appendChild(gridEl);
 const st: T3Board = getBoard();
 
 let myId: number;
-const ws = uwsClient((msg) => {
+const ws = competeClient((msg) => {
   switch (msg.op) {
     case 'announce':
       updateLabel(msg.message);

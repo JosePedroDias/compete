@@ -1,7 +1,7 @@
 import { T3Board, getBoard } from './T3Board';
-import { Room, Event, roomWrapper } from '../generic/uwsRoomWrapper';
+import { compete, Room, Event } from 'compete-server/dist/index';
 
-const { idToWsInstance, broadcast } = roomWrapper<T3Board>({
+const { idToWsInstance, broadcast } = compete<T3Board>({
   wsOpts: {
     maxPayloadLength: 4 * 1024, // bytes?
     idleTimeout: 60, // secs?

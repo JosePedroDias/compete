@@ -1,0 +1,36 @@
+{
+  "private": true,
+  "name": "tic-tac-toe",
+  "version": "0.0.0",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">= 18"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "dev-server": "nodemon -e ts --exec \"npm run build-server && npm run run-server\"",
+    "build-server": "tsc",
+    "run-server": "node --experimental-specifier-resolution=node dist-server/index-server.js",
+    "run-bot": "node --experimental-specifier-resolution=node dist-server/index-bot.js",
+    "lint": "npx eslint src --fix",
+    "prettier": "npx prettier src --check --write",
+    "format": "npm run prettier && npm run lint"
+  },
+  "devDependencies": {
+    "eslint": "^8.28.0",
+    "eslint-config-custom": "*",
+    "tsconfig": "*",
+    "typescript": "^4.9.3",
+    "vite": "^3.2.4",
+    "@types/ws": "^8.5.3",
+    "ws": "^8.11.0"
+  },
+  "dependencies": {
+    "compete-client": "*",
+    "compete-server": "*",
+    "compete-utils": "*"
+  }
+}

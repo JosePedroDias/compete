@@ -1,7 +1,7 @@
 import WebSocket from 'ws';
-import { uwsClient } from '../generic/uwsClient';
+import { competeClient } from 'compete-client/dist/index';
 
-import { getBoard, indexToPos, T3Board } from '../tictactoe/T3Board';
+import { getBoard, indexToPos, T3Board } from './T3Board';
 
 // @ts-ignore
 global.WebSocket = WebSocket;
@@ -46,7 +46,7 @@ function play() {
 
 let timer: NodeJS.Timer;
 
-const ws = uwsClient((msg: any) => {
+const ws = competeClient((msg: any) => {
   switch (msg.op) {
     case 'announce':
       updateLabel(msg.message);

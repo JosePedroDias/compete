@@ -1,4 +1,4 @@
-import { Board } from '../generic/Board';
+import { Board } from 'compete-utils/dist/Board';
 
 export const CHAR_EMPTY = ' ';
 export const CHAR_SNAKE = 'O';

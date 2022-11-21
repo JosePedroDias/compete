@@ -1,5 +1,6 @@
-import { wrapper, WebSocket2 } from '../generic/uwsWrapper';
-import { Board } from '../generic/Board';
+//import { compete, WebSocket2 } from 'compete-server/dist/index';
+import { wrapper, WebSocket2 } from 'compete-server/dist/competeWrapper';
+import { Board } from 'compete-utils/dist/Board';
 import { Snake, CHAR_EMPTY, CHAR_FOOD, CHAR_OBSTACLE } from './Snake';
 
 const W = 80;
@@ -73,11 +74,18 @@ const { idToWsInstance, broadcast } = wrapper({
     maxPayloadLength: 4 * 1024, // bytes?
     idleTimeout: 60, // secs?
   },
+  /* roomOpts: {
+    maxRooms: 1,
+    minPlayers: 2,
+    maxPlayers: 5,
+    tickRate: 2,
+  }, */
   onJoin(ws: WebSocket2) {
     ws.send({ op: 'own-id', id: ws.id });
     ws.send({ op: 'board-init', w: W, h: H });
     reset();
   },
+  // @ts-ignore
   onMessage(ws: WebSocket2, data) {
     switch (data.op) {
       case 'key':
@@ -90,7 +98,7 @@ const { idToWsInstance, broadcast } = wrapper({
         console.log(`unsupported opcode: ${data.op}`);
     }
   },
-  onLeave(ws: WebSocket2, _code) {
+  onLeave(ws: WebSocket2, _code:any) {
     removeSnake(ws.id);
   },
 });
