@@ -1,0 +1,27 @@
+{
+    "name": "compete-server",
+    "version": "0.0.0",
+    "main": "./index.ts",
+    "types": "./index.ts",
+    "license": "MIT",
+    "type": "module",
+    "engines": {
+        "node": ">= 18"
+    },
+    "scripts": {
+        "lint": "eslint \"**/*.ts*\"",
+        "build": "rm -rf dist && tsc"
+    },
+    "devDependencies": {
+        "eslint": "^8.28.0",
+        "eslint-config-custom": "*",
+        "tsconfig": "*",
+        "typescript": "^4.9.3",
+        "@types/uuid": "^8.3.4"
+    },
+    "dependencies": {
+        "msgpackr": "^1.7.0-alpha3",
+        "uuid": "^8.3.2",
+        "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.10.0"
+    }
+}

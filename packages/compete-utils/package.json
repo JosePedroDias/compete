@@ -1,0 +1,22 @@
+{
+    "name": "compete-utils",
+    "version": "0.0.0",
+    "main": "./index.ts",
+    "types": "./index.ts",
+    "license": "MIT",
+    "type": "module",
+    "engines": {
+        "node": ">= 18"
+    },
+    "scripts": {
+        "lint": "eslint \"**/*.ts*\"",
+        "test": "vitest"
+    },
+    "devDependencies": {
+        "eslint": "^8.28.0",
+        "eslint-config-custom": "*",
+        "tsconfig": "*",
+        "vitest": "^0.25.2",
+        "typescript": "^4.9.3"
+    }
+}
