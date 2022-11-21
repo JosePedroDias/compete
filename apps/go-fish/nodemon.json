@@ -1,0 +1,10 @@
+{
+  "verbose": true,
+  "ignore": [
+    "**/index-client.ts",
+    "**/index-bot.ts"
+  ],
+  "watch": ["src"],
+  "exec": "npm run build-server && npm run run-server",
+  "ext": "ts"
+}
