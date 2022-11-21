@@ -18,7 +18,9 @@ function setup() {
   keys.push(KEY_BLANK);
 
   for (const key of keys) {
-    const imgUrl = new URL(`/cards/${key}.svg`, import.meta.url).href;
+    //const imgUrl = new URL(`/cards/${key}.svg`, import.meta.url).href;
+    const imgUrl = `/cards/${key}.svg`;
+    //console.warn(`loading ${key} from ${imgUrl}`);
     const cardTexture = Texture.from(imgUrl);
     cardTextures.set(key, cardTexture);
   }
