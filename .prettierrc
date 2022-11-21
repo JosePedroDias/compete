@@ -7,5 +7,5 @@
   "bracketSameLine": false,
   "useTabs": false,
   "arrowParens": "always",
-  "endOfLine": "crlf"
+  "endOfLine": "lf"
 }
