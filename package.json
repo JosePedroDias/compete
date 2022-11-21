@@ -6,14 +6,9 @@
     ],
     "scripts": {
         "build": "turbo run build",
-        "dev": "turbo run dev",
-        "lint": "turbo run lint",
-        "format": "prettier --write \"**/*.{ts,md}\""
+        "format": "turbo run format"
     },
     "devDependencies": {
-        "eslint": "^8.28.0",
-        "eslint-config-custom": "*",
-        "prettier": "^2.7.1",
         "turbo": "latest"
     },
     "packageManager": "npm@9.0.0"
