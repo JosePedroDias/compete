@@ -6,6 +6,9 @@
         ".next/**"
       ]
     },
+    "docs": {
+      "outputs": []
+    },
     "format": {
       "cache": false,
       "outputs": []

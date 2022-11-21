@@ -6,6 +6,7 @@
     ],
     "scripts": {
         "build": "turbo run build",
+        "docs": "turbo run docs",
         "format": "turbo run format"
     },
     "devDependencies": {

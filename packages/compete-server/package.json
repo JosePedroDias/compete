@@ -14,14 +14,16 @@
     "build": "tsc",
     "lint": "npx eslint src --fix",
     "prettier": "npx prettier src --check --write",
-    "format": "npm run prettier && npm run lint"
+    "format": "npm run prettier && npm run lint",
+    "docs": "npx typedoc src/index.ts"
   },
   "devDependencies": {
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.43.0",
+    "eslint": "^8.28.0",
     "eslint-config-custom": "*",
     "eslint-plugin-prettier": "^4.2.1",
-    "eslint": "^8.28.0",
+    "typedoc": "^0.23.21",
     "typescript": "^4.9.3"
   },
   "dependencies": {
