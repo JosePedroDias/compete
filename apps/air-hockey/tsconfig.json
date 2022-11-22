@@ -1,0 +1,33 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "useDefineForClassFields": true,
+        "module": "ESNext",
+        "lib": ["ESNext"],
+        "types": ["node"],
+        "moduleResolution": "Node",
+        "strict": true,
+        "sourceMap": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "esModuleInterop": true,
+        "noEmit": false,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "skipLibCheck": true,
+        "outDir": "dist-server"
+    },
+    "include": [
+        "src/**/*.ts"
+    ],
+    "references": [
+        { "path": "../../packages/compete-server" },
+        { "path": "../../packages/compete-client" },
+        { "path": "../../packages/compete-utils" }
+    ],
+    "exclude": [
+        "node_modules", "dist",
+        "src/index-client.ts"
+    ],
+}
