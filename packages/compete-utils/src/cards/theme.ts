@@ -14,7 +14,7 @@ const KEY_BLANK = 'BLANK';
 /**
  * This function is meant to be automatically run by the client to fetch and load card assets as textures
  */
-function setup() {
+function prepareTextures() {
   const d = getDeck(true);
   const keys = d.map((c) => c.toString());
 
@@ -32,7 +32,9 @@ function setup() {
   }
 }
 
-setup();
+if (typeof window === 'object') {
+  prepareTextures();
+}
 
 const FRONT_IDX = 1;
 const BACK_IDX = 2;
