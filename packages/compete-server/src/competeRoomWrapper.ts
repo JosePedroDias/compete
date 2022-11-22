@@ -1,13 +1,31 @@
 import { wrapper, WebSocket2, WrapperObj } from './competeWrapper';
 export type { WebSocket2 } from './competeWrapper';
 
+/**
+ * Defines the room options
+ */
 export type RoomOpts = {
+  /**
+   * minimum players allowed in a room on a running game round
+   */
   minPlayers: number;
+  /**
+   * maximum players allowed in a room
+   */
   maxPlayers: number;
+  /**
+   * maximum number of rooms the game server allows to exist at the same time
+   */
   maxRooms: number;
+  /**
+   * number of times the tick function is called per second
+   */
   tickRate: number; // fps
 };
 
+/**
+ * The set of options the room wrapper expects
+ */
 export type RoomWrapperObj<St> = Omit<
   WrapperObj,
   'onJoin' | 'onMessage' | 'onLeave'
@@ -16,18 +34,37 @@ export type RoomWrapperObj<St> = Omit<
   onJoin?: (ws: WebSocket2) => void;
   //onMessage?: (ws: WebSocket2, message: any) => void;
   onLeave?: (ws: WebSocket2, code: number) => void;
+  /**
+   * called when a game start
+   */
   onGameStart: (room: Room) => St;
+  /**
+   * called on every tick
+   * receives all inbound events which took place since last tick
+   */
   onGameTick: (room: Room, events: Event[], st: St) => St;
+  /**
+   * called when a game ends
+   */
   onGameEnd: (room: Room, st: St) => void;
+  /**
+   * allows to taylor the state to each player
+   */
   adaptState?: (st: St, id: number) => St;
 };
 
+/**
+ * A room holds a set of participants, the attribute whether the round has started and an auxiliary timer
+ */
 export class Room {
   participants = new Set<WebSocket2>();
   hasStarted = false; // internal usage only
   timer?: NodeJS.Timer; // internal usage only
 }
 
+/**
+ * An event in the record of an inbound message which hasn't yet been processed (they are before each tick)
+ */
 export type Event = {
   ts: number;
   from: number;
@@ -37,6 +74,15 @@ export type Event = {
 const rooms: Room[] = [];
 const idToRoom = new Map<number, Room>();
 
+/**
+ * Adds additional features besides basic wrapper
+ * Clusters players in groups,
+ * Fires gameStart and gameEnd according to criteria
+ * Runs onTick according to the tick rate
+ * Uses adapt state if it is defiend
+ *
+ * @param roomWrapperOptions
+ */
 export function roomWrapper<St>({
   port = 9001,
   appOpts = {},

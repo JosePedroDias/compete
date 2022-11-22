@@ -5,31 +5,56 @@ import {
   SHARED_COMPRESSOR,
   CompressOptions,
 } from 'uWebSockets.js';
+
 import { pack, unpack } from 'msgpackr';
 
+/**
+ * AppOpts is the set of options internal uWebSockets expects
+ */
 export type AppOpts = {
   key_file_name?: string;
   cert_file_name?: string;
   passphrase?: string;
 };
 
+/**
+ * WS related uWebSockets options
+ */
 export type WSOpts = {
   compression?: CompressOptions;
   maxPayloadLength?: number;
   idleTimeout?: number;
 };
 
+/**
+ * An enriched websocket instance (holds a unique id per client beside send method)
+ */
 export type WebSocket2 = {
   id: number;
   send(msg: any): void;
 };
 
+/**
+ * Expected interface to pass to wrapper function
+ */
 export type WrapperObj = {
+  /**
+   * port number the server will use
+   */
   port?: number;
   appOpts?: AppOpts;
   wsOpts: WSOpts;
+  /**
+   * function that gets called every time a player joins
+   */
   onJoin: (ws: WebSocket2) => void;
+  /**
+   * function that gets called every time a player sends a message
+   */
   onMessage: (ws: WebSocket2, message: any) => void;
+  /**
+   * function that gets called every time a player leaves
+   */
   onLeave: (ws: WebSocket2, code: number) => void;
 };
 
@@ -66,7 +91,7 @@ export function wrapper({
 
       open: (ws: WebSocket) => {
         ws._send = ws.send;
-        ws.send = (data) => ws._send(pack(data), true);
+        ws.send = (data: any) => ws._send(pack(data), true);
 
         ws.id = getId();
         idToWsInstance.set(ws.id, ws as any as WebSocket2);
@@ -87,7 +112,7 @@ export function wrapper({
             console.log(`ws backpressure: ${ws.getBufferedAmount()}`);
         }, */
 
-      close: (ws: WebSocket, code, _message) => {
+      close: (ws: WebSocket, code: any, _message: any) => {
         idToWsInstance.delete(ws.id);
         //console.log(`ws closed ${ws.id} ok`);
 
@@ -97,7 +122,7 @@ export function wrapper({
     /* .any('/*', (res, req) => {
         res.end('Nothing to see here!');
     }) */
-    .listen(port, (token) => {
+    .listen(port, (token: any) => {
       if (token) {
         console.log(`Listening to port ${port}`);
       } else {

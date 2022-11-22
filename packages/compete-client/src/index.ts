@@ -1,5 +1,6 @@
 /**
- * This module defines a compete client that's suitable for browser or nodejs usage (granted WebSocket was globally set)
+ * This module defines the compete multiplayer game client
+ * that's suitable for browser or nodejs usage (granted WebSocket was globally set)
  */
 
 import { pack, unpack } from 'msgpackr';
