@@ -1,11 +1,34 @@
+/**
+ * This module defines a compete client that's suitable for browser or nodejs usage (granted WebSocket was globally set)
+ */
+
 import { pack, unpack } from 'msgpackr';
 
-export function competeClient(
-  onMessage: (data: any) => void,
-  address = 'ws://127.0.0.1:9001',
-) {
+export type CompeteClientOptions = {
+  /**
+   * This callback will be executed every time we receive a new message from the websocket server
+   * @param data
+   */
+  onMessage(data: any): void;
+  /**
+   * The address of the websocket server
+   */
+  address?: string;
+};
+
+export type CompeteClientAPI = {
+  /**
+   * Sends a message to the websocket server using message pack
+   * @param o the data to send
+   */
+  send(o: any): void;
+};
+
+export function competeClient(options: CompeteClientOptions): CompeteClientAPI {
+  const { onMessage, address } = options;
+
   // @ts-ignore
-  const ws = new WebSocket(address);
+  const ws = new WebSocket(address || 'ws://127.0.0.1:9001');
   ws.binaryType = 'arraybuffer'; // to get an arraybuffer instead of a blob
 
   ws.addEventListener('open', () => {

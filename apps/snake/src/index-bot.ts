@@ -19,25 +19,27 @@ function play() {
 
 let timer: NodeJS.Timer;
 
-const ws = competeClient((msg: any) => {
-  switch (msg.op) {
-    case 'own-id':
-      myId = msg.id;
-      console.log(`id:${myId}`);
-      break;
-    case 'game-over':
-      break;
-    case 'board-init':
-      board = new Board(msg.w, msg.h, ' ');
-      if (!timer) {
-        timer = setInterval(play, 500);
-      }
-      break;
-    case 'board-diff':
-      board.patch(msg.diff);
-      console.log(board.toString());
-      break;
-    default:
-      console.warn(`unsupported opcode: ${msg.op}`);
-  }
+const ws = competeClient({
+  onMessage: (msg: any) => {
+    switch (msg.op) {
+      case 'own-id':
+        myId = msg.id;
+        console.log(`id:${myId}`);
+        break;
+      case 'game-over':
+        break;
+      case 'board-init':
+        board = new Board(msg.w, msg.h, ' ');
+        if (!timer) {
+          timer = setInterval(play, 500);
+        }
+        break;
+      case 'board-diff':
+        board.patch(msg.diff);
+        console.log(board.toString());
+        break;
+      default:
+        console.warn(`unsupported opcode: ${msg.op}`);
+    }
+  },
 });

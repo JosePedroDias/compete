@@ -62,42 +62,44 @@ function processCard(c: Card) {
 
 let myId: number;
 let st: GoFishState;
-const ws = competeClient((msg) => {
-  switch (msg.op) {
-    case 'my-id':
-      myId = msg.id;
-      document.title = `id:${myId}`;
-      break;
-    case 'player-left':
-      console.warn(`player left: ${msg.id}`);
-      break;
-    case 'update-state':
-      if (!st) {
-        const st0 = msg.state as GoFishState;
+const ws = competeClient({
+  onMessage: (msg) => {
+    switch (msg.op) {
+      case 'my-id':
+        myId = msg.id;
+        document.title = `id:${myId}`;
+        break;
+      case 'player-left':
+        console.warn(`player left: ${msg.id}`);
+        break;
+      case 'update-state':
+        if (!st) {
+          const st0 = msg.state as GoFishState;
 
-        st = {
-          stockPile: st0.stockPile.map(processCard),
-          hands: st0.hands.map((h) => h.map(processCard)),
-        };
+          st = {
+            stockPile: st0.stockPile.map(processCard),
+            hands: st0.hands.map((h) => h.map(processCard)),
+          };
 
-        const participantIds: number[] = st.hands.map(
-          (h) => h[0].owner as number,
-        );
-        const currentPlayer = participantIds.indexOf(myId);
+          const participantIds: number[] = st.hands.map(
+            (h) => h[0].owner as number,
+          );
+          const currentPlayer = participantIds.indexOf(myId);
 
-        // SEE PLAYER #N PERSPECTIVE
-        const D_ANGLE = -360 / participantIds.length;
-        tableCtn.rotation = currentPlayer * D_ANGLE * DEG_TO_RAD;
+          // SEE PLAYER #N PERSPECTIVE
+          const D_ANGLE = -360 / participantIds.length;
+          tableCtn.rotation = currentPlayer * D_ANGLE * DEG_TO_RAD;
 
-        importState(st);
-        // @ts-ignore
-        window.st = st;
-      } else {
-        // TODO
-      }
+          importState(st);
+          // @ts-ignore
+          window.st = st;
+        } else {
+          // TODO
+        }
 
-      break;
-    default:
-      console.warn(`unsupported opcode: ${msg.op}`);
-  }
+        break;
+      default:
+        console.warn(`unsupported opcode: ${msg.op}`);
+    }
+  },
 });

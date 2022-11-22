@@ -39,7 +39,7 @@ const BACK_IDX = 2;
 
 /**
  * Generates a visual representation of an abstract card and keep a loose connection between both
- * 
+ *
  * @param c the abstract card
  * @param onClick makes the click handler receive the original abstract representation
  * @returns the visual representation of the card
@@ -47,7 +47,7 @@ const BACK_IDX = 2;
 export function getCardVisual(
   c: Card,
   onClick?: (c: Card, cv: Container) => void,
-):Container {
+): Container {
   const cv = new Container();
 
   cv.name = c.id;
@@ -87,11 +87,11 @@ export function getCardVisual(
 /**
  * Updates the visual representation with the abstract version
  * This is meant to be run when syncing remote data in
- * 
+ *
  * @param c the abstract card
  * @param cv the visual card
  */
-export function updateCardVisual(c: Card, cv: any):void {
+export function updateCardVisual(c: Card, cv: any): void {
   const wasBlank =
     cv.children[FRONT_IDX].texture.baseTexture.cacheId.includes('BLANK'); // TODO something simpler and/or more performant?
   const isBlank = !c.rank;
@@ -129,11 +129,11 @@ export function updateCardVisual(c: Card, cv: any):void {
 
 /**
  * This function exists to allow remote collections to update the local visual representation
- * 
+ *
  * @param cards a set of abstract cards
  * @param parent the container of the visual representation of those cards
  */
-export function reorderVisuals(cards: Card[], parent: Container):void {
+export function reorderVisuals(cards: Card[], parent: Container): void {
   cards = Array.from(cards);
   cards.reverse();
   for (const c of cards) {
@@ -144,9 +144,9 @@ export function reorderVisuals(cards: Card[], parent: Container):void {
 
 /**
  * Disposes the visual card
- * 
+ *
  * @param cv visual representation of a card
  */
- export function disposeCardVisual(cv: Container):void {
+export function disposeCardVisual(cv: Container): void {
   cv.parent.removeChild(cv);
 }

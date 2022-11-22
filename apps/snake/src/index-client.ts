@@ -15,18 +15,20 @@ document.body.addEventListener('keydown', (ev) => {
 
 const boardEl = document.getElementById('board') as HTMLElement;
 
-const ws = competeClient((msg) => {
-  switch (msg.op) {
-    case 'own-id':
-      break;
-    case 'board-init':
-      board = new Board(msg.w, msg.h, ' ');
-      break;
-    case 'board-diff':
-      board.patch(msg.diff);
-      (boardEl.firstChild as Text).nodeValue = board.toString();
-      break;
-    default:
-      console.log(`unsupported opcode: ${msg.op}!`);
-  }
+const ws = competeClient({
+  onMessage: (msg) => {
+    switch (msg.op) {
+      case 'own-id':
+        break;
+      case 'board-init':
+        board = new Board(msg.w, msg.h, ' ');
+        break;
+      case 'board-diff':
+        board.patch(msg.diff);
+        (boardEl.firstChild as Text).nodeValue = board.toString();
+        break;
+      default:
+        console.log(`unsupported opcode: ${msg.op}!`);
+    }
+  },
 });

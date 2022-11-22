@@ -46,33 +46,35 @@ function play() {
 let timer: NodeJS.Timer;
 
 // @ts-ignore
-const ws = competeClient((msg: any) => {
-  switch (msg.op) {
-    case 'my-id':
-      myId = msg.id;
-      console.log(`id:${myId}`);
-      break;
-    case 'player-left':
-      console.warn(`player left: ${msg.id}`);
-      break;
-    case 'update-state':
-      if (!st) {
-        //st = msg.state as GoFishState;
+const ws = competeClient({
+  onMessage: (msg: any) => {
+    switch (msg.op) {
+      case 'my-id':
+        myId = msg.id;
+        console.log(`id:${myId}`);
+        break;
+      case 'player-left':
+        console.warn(`player left: ${msg.id}`);
+        break;
+      case 'update-state':
+        if (!st) {
+          //st = msg.state as GoFishState;
 
-        const st0 = msg.state;
-        st = {
-          stockPile: st0.stockPile.map(processCard),
-          hands: st0.hands.map((h: any) => h.map(processCard)),
-        };
+          const st0 = msg.state;
+          st = {
+            stockPile: st0.stockPile.map(processCard),
+            hands: st0.hands.map((h: any) => h.map(processCard)),
+          };
 
-        if (!timer) {
-          timer = setInterval(play, 500);
+          if (!timer) {
+            timer = setInterval(play, 500);
+          }
+        } else {
+          // TODO
         }
-      } else {
-        // TODO
-      }
-      break;
-    default:
-      console.warn(`unsupported opcode: ${msg.op}`);
-  }
+        break;
+      default:
+        console.warn(`unsupported opcode: ${msg.op}`);
+    }
+  },
 });

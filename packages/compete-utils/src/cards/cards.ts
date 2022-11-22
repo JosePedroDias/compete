@@ -47,7 +47,7 @@ export enum Back {
 
 /**
  * The abstract definition of a playing card
- * 
+ *
  * We use the recall/forget feature to allow the server to keep the full card info but manage which players can know it and which can be oblivious of this face value
  * The constructor holds a context where those attributes can be temporarily stored, so that public serialization prevents them from being broadcasted
  */
@@ -144,7 +144,7 @@ export class Card {
  * Auxiliary function to return a set of cards
  * @param withJokers pass true to have jokers in the set
  * @param back pass back to define the card back variant for all the cards in the set
- * @param oddOfUnknown 
+ * @param oddOfUnknown
  */
 export function getDeck(
   withJokers: boolean,
@@ -171,7 +171,7 @@ export function getDeck(
 
 /**
  * Fisher-Yates shuffle algorithm
- * 
+ *
  * @param arr the array of cards
  * @param inPlace if true, shuffling is done in place, otherwise a new shuffled array is returned
  */
@@ -199,7 +199,7 @@ export function place(cards: Card[], [x, y]: [number, number]) {
 
 /**
  * Change the side facing up
- * 
+ *
  * @param cards cards to affect
  * @param facingDown facing down state to set
  * @param forgetRecover if true, the actual face value is forgotten
@@ -220,7 +220,7 @@ export function face(
 
 /**
  * Layout a set of cards as an arc
- * 
+ *
  * @param cards cards to affect
  * @param center center of the arc
  * @param delta delta position between cards
@@ -249,7 +249,7 @@ export function arc(
 
 /**
  * Reorders cards using a given heuristic
- * 
+ *
  * @param cards cards to reorder
  * @param heuristicFn heuristic to apply to each card as criteria for sorting
  */
@@ -277,7 +277,7 @@ const _rankOrder: string[] = [
 
 /**
  * Returns an heuristic which can be used to correctly order cards in an array
- * 
+ *
  * @param suitsFirst whether to prioritize suits over ranks
  * @param suitsOrder which order different suits get ordered
  * @param rankOrder which order different ranks get ordered
@@ -296,7 +296,7 @@ export function cardHeuristicFactory(
 
 /**
  * Deals card hands as arcs around a center point
- * 
+ *
  * @param deck array of cards to get cards from
  * @param param1 center point
  * @param cardsPerHand number of cards to give each player

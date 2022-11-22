@@ -1,11 +1,11 @@
 /**
  * Sync interface
  */
- export type SyncInterface<T> = T & {
+export type SyncInterface<T> = T & {
   sync: () => [string, any][];
   patch: (diffs: [string, any][]) => void;
-  insertAt(index:number, value:any):void;
-  removeAt(index:number):void;
+  insertAt(index: number, value: any): void;
+  removeAt(index: number): void;
 };
 
 /**
@@ -14,7 +14,7 @@
  * If object is an array, array methods push/pop/shift/unshift plus insertAt and removeAt are synced
  * @param o object to track
  */
-export function trackObject<T>(o: T):SyncInterface<T> {
+export function trackObject<T>(o: T): SyncInterface<T> {
   const isArray = o instanceof Array;
 
   let yetToSync = isArray ? [] : new Map<string, any>();
@@ -122,5 +122,3 @@ export function trackObject<T>(o: T):SyncInterface<T> {
 
   return proxy as SyncInterface<T>;
 }
-
-
