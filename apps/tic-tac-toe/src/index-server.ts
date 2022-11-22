@@ -43,18 +43,16 @@ roomWrapper<T3Board>({
       console.log(from, ts, position);
       const [x, y] = position;
 
-      const ws2 = room.idToWs.get(from);
-
-      if (from !== nextId) {
+      if (from.id !== nextId) {
         const message = 'ignoring move (not your turn)';
-        ws2?.send({ op: 'bad-move', message });
+        from.send({ op: 'bad-move', message });
         console.log(message);
       } else if (st.getCell(x, y) !== 0) {
         const message = 'ignoring move (cell is not empty)';
-        ws2?.send({ op: 'bad-move', message });
+        from.send({ op: 'bad-move', message });
         console.log(message);
       } else {
-        st.setCell(x, y, from);
+        st.setCell(x, y, from.id);
         const e = st.nextToPlay.shift() as number;
         st.nextToPlay.push(e);
 

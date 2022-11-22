@@ -97,9 +97,9 @@ export type Event = {
    */
   ts: number;
   /**
-   * the unique id of the player who sent the message
+   * the player who sent the message
    */
-  from: number;
+  from: WebSocket2;
   /**
    * the actual message received
    */
@@ -140,8 +140,8 @@ export function roomWrapper<St>({
   const gameStates = new Map<Room, St>();
   const gameEvents = new Map<Room, Event[]>();
 
-  function getRoom(ws: WebSocket2): Room | undefined {
-    console.log('getRoom', ws.id);
+  function joinRoom(ws: WebSocket2): Room | undefined {
+    console.log('joinRoom', ws.id);
     let room = rooms.find(
       (room) =>
         !room.hasStarted && room.participants.length < roomOpts.maxPlayers,
@@ -224,13 +224,14 @@ export function roomWrapper<St>({
     appOpts,
     wsOpts,
     onJoin(ws) {
-      const room = getRoom(ws);
-      if (!room) {
-        throw new Error(
-          `Server has no capability of spawning more than ${roomOpts.maxRooms} rooms!`,
-        );
+      const room = joinRoom(ws);
+      if (room) {
+        onJoin(ws, room);
+      } else {
+        const err = `Server has no capability of spawning more than ${roomOpts.maxRooms} rooms!`;
+        console.log(err);
+        ws.send({ op: 'server-full', text: err });
       }
-      onJoin(ws, room);
     },
     onLeave(ws, code) {
       const room = leaveRoom(ws);
@@ -242,7 +243,7 @@ export function roomWrapper<St>({
         //console.log('ignoring message', message);
       } else {
         const events = gameEvents.get(room) as Event[];
-        events.push({ from: ws.id, ts: Date.now(), data: message });
+        events.push({ from: ws, ts: Date.now(), data: message });
       }
     },
   });
