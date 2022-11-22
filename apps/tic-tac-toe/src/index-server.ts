@@ -1,8 +1,8 @@
-import { roomWrapper, Room, Event } from 'compete-server';
+import { roomWrapper, Room, Event, WebSocket2 } from 'compete-server';
 
 import { T3Board, getBoard } from './T3Board';
 
-const { idToWsInstance, broadcast } = roomWrapper<T3Board>({
+roomWrapper<T3Board>({
   wsOpts: {
     maxPayloadLength: 4 * 1024, // bytes?
     idleTimeout: 60, // secs?
@@ -13,11 +13,12 @@ const { idToWsInstance, broadcast } = roomWrapper<T3Board>({
     maxPlayers: 2,
     tickRate: 2,
   },
-  onJoin(ws) {
+  onJoin(ws: WebSocket2, room: Room) {
     ws.send({ op: 'my-id', id: ws.id });
+    room.roomBroadcast({ op: 'other-id', id: ws.id }, ws);
   },
-  onLeave(ws) {
-    broadcast({ op: 'player-left', id: ws.id }, ws);
+  onLeave(ws: WebSocket2, room: Room) {
+    room.roomBroadcast({ op: 'player-left', id: ws.id }, ws);
   },
   onGameStart(room: Room): T3Board {
     console.log('onGameStart');
@@ -41,13 +42,16 @@ const { idToWsInstance, broadcast } = roomWrapper<T3Board>({
     } of events) {
       console.log(from, ts, position);
       const [x, y] = position;
+
+      const ws2 = room.wsFromId(from);
+
       if (from !== nextId) {
         const message = 'ignoring move (not your turn)';
-        idToWsInstance.get(from)?.send({ op: 'bad-move', message });
+        ws2?.send({ op: 'bad-move', message });
         console.log(message);
       } else if (st.getCell(x, y) !== 0) {
         const message = 'ignoring move (cell is not empty)';
-        idToWsInstance.get(nextId)?.send({ op: 'bad-move', message });
+        ws2?.send({ op: 'bad-move', message });
         console.log(message);
       } else {
         st.setCell(x, y, from);
@@ -56,7 +60,7 @@ const { idToWsInstance, broadcast } = roomWrapper<T3Board>({
 
         if (st.hasWon(nextId)) {
           const message = `${nextId} won!`;
-          broadcast({ op: 'announce', message });
+          room.roomBroadcast({ op: 'announce', message });
           console.log(message);
           st.whoWon = nextId;
           setTimeout(() => {
@@ -65,7 +69,7 @@ const { idToWsInstance, broadcast } = roomWrapper<T3Board>({
           }, 50);
         } else if (st.isFull()) {
           const message = `board is full!`;
-          broadcast({ op: 'announce', message });
+          room.roomBroadcast({ op: 'announce', message });
           console.log(message);
           setTimeout(() => {
             room.hasStarted = false;

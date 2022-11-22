@@ -1,7 +1,7 @@
 import { roomWrapper, Room, Event, WebSocket2 } from 'compete-server';
 import { getBasicSetup, getView, GoFishState } from './GoFishState';
 
-const { /*idToWsInstance,*/ broadcast } = roomWrapper<GoFishState>({
+roomWrapper<GoFishState>({
   wsOpts: {
     maxPayloadLength: 4 * 1024, // bytes?
     idleTimeout: 60, // secs?
@@ -12,12 +12,12 @@ const { /*idToWsInstance,*/ broadcast } = roomWrapper<GoFishState>({
     maxPlayers: 5,
     tickRate: 2,
   },
-  onJoin(ws: WebSocket2) {
+  onJoin(ws: WebSocket2, room: Room) {
     ws.send({ op: 'my-id', id: ws.id });
-    broadcast({ op: 'other-id', id: ws.id }, ws);
+    room.roomBroadcast({ op: 'other-id', id: ws.id }, ws);
   },
-  onLeave(ws: WebSocket2) {
-    broadcast({ op: 'player-left', id: ws.id }, ws);
+  onLeave(ws: WebSocket2, room: Room, _code: number) {
+    room.roomBroadcast({ op: 'player-left', id: ws.id }, ws);
   },
   adaptState(st: GoFishState, id: number) {
     getView(st, id);

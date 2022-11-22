@@ -30,7 +30,15 @@ export type WSOpts = {
  * An enriched websocket instance (holds a unique id per client beside send method)
  */
 export type WebSocket2 = {
+  /**
+   * unique id for the player in the game server
+   */
   id: number;
+  /**
+   * Sends a message to this player
+   *
+   * @param msg the message to send
+   */
   send(msg: any): void;
 };
 
@@ -58,6 +66,11 @@ export type WrapperObj = {
   onLeave: (ws: WebSocket2, code: number) => void;
 };
 
+/**
+ * This is the lower level game server abstraction. Features only basic websocket functionality
+ *
+ * @param wrapperObj
+ */
 export function wrapper({
   port = 9001,
   appOpts = {},
@@ -75,6 +88,12 @@ export function wrapper({
 
   const idToWsInstance = new Map<number, WebSocket2>(); // id -> ws
 
+  /**
+   * Sends a message to everyone in the server (optionally but one)
+   *
+   * @param msg message to send
+   * @param ignoreMe optional. if sent, this recipient will be skipped from broadcast
+   */
   function broadcast(msg: any, ignoreMe?: WebSocket2) {
     const msgO = pack(msg);
     const wss = Array.from(idToWsInstance.values());

@@ -1,3 +1,5 @@
+import { pack } from 'msgpackr';
+
 import { wrapper, WebSocket2, WrapperObj } from './wrapper';
 export type { WebSocket2 } from './wrapper';
 
@@ -31,11 +33,11 @@ export type RoomWrapperObj<St> = Omit<
   'onJoin' | 'onMessage' | 'onLeave'
 > & {
   roomOpts: RoomOpts;
-  onJoin?: (ws: WebSocket2) => void;
+  onJoin?: (ws: WebSocket2, room: Room) => void;
   //onMessage?: (ws: WebSocket2, message: any) => void;
-  onLeave?: (ws: WebSocket2, code: number) => void;
+  onLeave?: (ws: WebSocket2, room: Room, code: number) => void;
   /**
-   * called when a game start
+   * called when a game starts
    */
   onGameStart: (room: Room) => St;
   /**
@@ -48,7 +50,7 @@ export type RoomWrapperObj<St> = Omit<
    */
   onGameEnd: (room: Room, st: St) => void;
   /**
-   * allows to taylor the state to each player
+   * optional - allows to taylor the state to each player
    */
   adaptState?: (st: St, id: number) => St;
 };
@@ -57,21 +59,69 @@ export type RoomWrapperObj<St> = Omit<
  * A room holds a set of participants, the attribute whether the round has started and an auxiliary timer
  */
 export class Room {
+  /**
+   * all current participants in the room
+   */
   participants = new Set<WebSocket2>();
+  /**
+   * whether a round is going on (between gameStart and gameEnd)
+   */
   hasStarted = false; // internal usage only
+  /**
+   * auxiliary timer used by tick interval
+   */
   timer?: NodeJS.Timer; // internal usage only
+
+  /**
+   * returns the websocket2 instance given its id
+   *
+   * @param id id to look for
+   */
+  wsFromId(id: number): WebSocket2 | undefined {
+    return Array.from(this.participants).find((ws) => ws.id === id);
+  }
+
+  /**
+   * Sends a message to all participants in a room (optionally but one)
+   *
+   * @param msg message to send
+   * @param ignoreMe optional. if sent, this recipient will be skipped from roomBroadcast
+   */
+  roomBroadcast(msg: any, ignoreMe?: WebSocket2) {
+    const msgO = pack(msg);
+    const wss = Array.from(this.participants);
+    for (const ws of wss) {
+      // @ts-ignore
+      if (ws !== ignoreMe) ws._send(msgO, true);
+    }
+  }
 }
 
 /**
  * An event in the record of an inbound message which hasn't yet been processed (they are before each tick)
  */
 export type Event = {
+  /**
+   * the timestamp of when the event was received
+   */
   ts: number;
+  /**
+   * the unique id of the player who sent the message
+   */
   from: number;
+  /**
+   * the actual message received
+   */
   data: any;
 };
 
+/**
+ * holds all rounds the server is currently managing
+ */
 const rooms: Room[] = [];
+/**
+ * maps player ids to the room instance they are
+ */
 const idToRoom = new Map<number, Room>();
 
 /**
@@ -79,7 +129,7 @@ const idToRoom = new Map<number, Room>();
  * Clusters players in groups,
  * Fires gameStart and gameEnd according to criteria
  * Runs onTick according to the tick rate
- * Uses adapt state if it is defiend
+ * Uses adapt state if it is defined
  *
  * @param roomWrapperOptions
  */
@@ -152,10 +202,9 @@ export function roomWrapper<St>({
     return room;
   }
 
-  function leaveRoom(ws: WebSocket2): Room | undefined {
+  function leaveRoom(ws: WebSocket2): Room {
     console.log('leaveRoom', ws.id);
-    const room = idToRoom.get(ws.id);
-    if (!room) return undefined;
+    const room = idToRoom.get(ws.id) as Room;
 
     room.participants.delete(ws);
     idToRoom.delete(ws.id);
@@ -181,21 +230,22 @@ export function roomWrapper<St>({
     appOpts,
     wsOpts,
     onJoin(ws) {
-      if (!getRoom(ws)) {
+      const room = getRoom(ws);
+      if (!room) {
         throw new Error(
           `Server has no capability of spawning more than ${roomOpts.maxRooms} rooms!`,
         );
       }
-      onJoin(ws);
+      onJoin(ws, room);
     },
     onLeave(ws, code) {
-      leaveRoom(ws);
-      onLeave(ws, code);
+      const room = leaveRoom(ws);
+      onLeave(ws, room, code);
     },
     onMessage(ws, message) {
       const room = idToRoom.get(ws.id);
       if (!room || !room.hasStarted) {
-        console.log('ignoring message', message);
+        //console.log('ignoring message', message);
       } else {
         const events = gameEvents.get(room) as Event[];
         events.push({ from: ws.id, ts: Date.now(), data: message });
