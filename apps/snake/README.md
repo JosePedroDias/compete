@@ -6,3 +6,5 @@ Obstacles appear every couple of ticks and food as well. Movement and eating inc
 The visuals are rendered in HTML text for simplicity.
 
 Game should be fully playable. Every time a player enters or leaves the round restarts.
+
+Unlike other games which use `roomWrapper` to get more powerful game feature, snake uses the simpler `wrapper` instead.

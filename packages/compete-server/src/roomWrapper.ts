@@ -1,5 +1,5 @@
-import { wrapper, WebSocket2, WrapperObj } from './competeWrapper';
-export type { WebSocket2 } from './competeWrapper';
+import { wrapper, WebSocket2, WrapperObj } from './wrapper';
+export type { WebSocket2 } from './wrapper';
 
 /**
  * Defines the room options

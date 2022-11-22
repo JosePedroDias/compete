@@ -1,7 +1,7 @@
-import { compete, Room, Event } from 'compete-server';
-import { getBasicSetup, getView } from './GoFishState';
+import { roomWrapper, Room, Event, WebSocket2 } from 'compete-server';
+import { getBasicSetup, getView, GoFishState } from './GoFishState';
 
-const { /*idToWsInstance,*/ broadcast } = compete<any>({
+const { /*idToWsInstance,*/ broadcast } = roomWrapper<GoFishState>({
   wsOpts: {
     maxPayloadLength: 4 * 1024, // bytes?
     idleTimeout: 60, // secs?
@@ -12,14 +12,14 @@ const { /*idToWsInstance,*/ broadcast } = compete<any>({
     maxPlayers: 5,
     tickRate: 2,
   },
-  onJoin(ws) {
+  onJoin(ws: WebSocket2) {
     ws.send({ op: 'my-id', id: ws.id });
-    broadcast({ op: 'other-id', id: ws.id }, ws as any);
+    broadcast({ op: 'other-id', id: ws.id }, ws);
   },
-  onLeave(ws) {
-    broadcast({ op: 'player-left', id: ws.id }, ws as any);
+  onLeave(ws: WebSocket2) {
+    broadcast({ op: 'player-left', id: ws.id }, ws);
   },
-  adaptState(st, id) {
+  adaptState(st: GoFishState, id: number) {
     getView(st, id);
     return st;
   },
@@ -39,10 +39,10 @@ const { /*idToWsInstance,*/ broadcast } = compete<any>({
 
     return st;
   },
-  onGameEnd(_room: Room, _st) {
+  onGameEnd(_room: Room, _st: GoFishState) {
     console.log('onGameEnd');
   },
-  onGameTick(_room: Room, events: Event[], st) {
+  onGameTick(_room: Room, events: Event[], st: GoFishState) {
     for (const { data, from } of events) {
       console.log(from, data);
     }

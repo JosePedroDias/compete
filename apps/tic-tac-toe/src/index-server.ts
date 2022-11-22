@@ -1,8 +1,8 @@
-import { compete, Room, Event } from 'compete-server';
+import { roomWrapper, Room, Event } from 'compete-server';
 
 import { T3Board, getBoard } from './T3Board';
 
-const { idToWsInstance, broadcast } = compete<T3Board>({
+const { idToWsInstance, broadcast } = roomWrapper<T3Board>({
   wsOpts: {
     maxPayloadLength: 4 * 1024, // bytes?
     idleTimeout: 60, // secs?
@@ -17,7 +17,7 @@ const { idToWsInstance, broadcast } = compete<T3Board>({
     ws.send({ op: 'my-id', id: ws.id });
   },
   onLeave(ws) {
-    broadcast({ op: 'player-left', id: ws.id }, ws as any);
+    broadcast({ op: 'player-left', id: ws.id }, ws);
   },
   onGameStart(room: Room): T3Board {
     console.log('onGameStart');

@@ -15,7 +15,7 @@ Be sure to visit the [docs](https://josepedrodias.github.io/compete/packages/com
 }
 ```
 
-## room API (compete)
+## roomWrapper API (more powerful)
 
 ```js
 onGameStart: (room: Room) => St; // computes the initial game state from room state
@@ -29,7 +29,7 @@ adaptState?: (st: St, id: number) => St; // send a modified state view for each 
 participants: Set<WebSocket2>(); // set of players that take part in this game
 ```
 
-## low level API (wrapper)
+## wrapper API (lower level, provides less goodies)
 
 ```js
 onJoin?: (ws: WebSocket2) => void;                  // called when player joins the server
