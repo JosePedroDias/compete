@@ -1,76 +1,58 @@
 import WebSocket from 'ws';
 
 import { competeClient } from 'compete-client';
-import { Card } from 'compete-utils';
 import { GoFishState } from './GoFishState';
 
 // @ts-ignore
 global.WebSocket = WebSocket;
 
 let st: GoFishState;
-
 let myId: number;
 
-function processCard(c: Card) {
-  const cc = new Card(c.id, c.back, c.suit, c.rank);
-  cc.owner = c.owner;
-  cc.setPosition(c.position[0], c.position[1]);
-  cc.setRotation(c.rotation);
-  //cc.setFacingDown(c.facingDown);
-  return cc;
-}
-
 function play() {
-  //console.log(st);
+  const myHand = st.getHand(myId);
+  const otherParticipantIds = st.participants.filter((id) => id !== myId);
 
-  const participantIds = st.hands.map((h: Card[]) => h[0].owner as number);
+  console.log(`my hand: ${myHand.map((c) => c.toString()).join(', ')}`);
 
-  const otherParticipantIds = participantIds.filter((id) => id !== myId);
+  const idx = Math.floor(Math.random() * myHand.length);
 
-  const myHandIndex = participantIds.indexOf(myId);
-
-  const myCards = st.hands[myHandIndex];
-
-  //console.log(myCards);
-  console.log(myCards.map((c) => c.toString()));
-
-  const idx = Math.floor(Math.random() * myCards.length);
-
-  const card = myCards[idx];
+  const card = myHand[idx];
   const to =
     otherParticipantIds[Math.floor(Math.random() * otherParticipantIds.length)];
 
-  ws.send({ op: 'ask', card: card.id, to });
+  console.log(`asking for ${card.rank}s...`);
+  ws.send({ op: 'ask', cardId: card.id, to });
 }
 
-let timer: NodeJS.Timer;
-
-// @ts-ignore
 const ws = competeClient({
   onMessage: (msg: any) => {
+    //console.log('MSG', msg);
     switch (msg.op) {
       case 'my-id':
         myId = msg.id;
         console.log(`id:${myId}`);
         break;
+      case 'other-id':
+        break;
       case 'player-left':
         console.warn(`player left: ${msg.id}`);
         break;
       case 'update-state':
-        if (!st) {
-          //st = msg.state as GoFishState;
-
-          const st0 = msg.state;
-          st = {
-            stockPile: st0.stockPile.map(processCard),
-            hands: st0.hands.map((h: any) => h.map(processCard)),
-          };
-
-          if (!timer) {
-            timer = setInterval(play, 500);
+        st = new GoFishState(msg.state as GoFishState);
+        //console.log('st', st);
+        break;
+      case 'next-to-play':
+        if (msg.id === myId) {
+          setTimeout(play, 2000);
+        }
+        break;
+      case 'ask2':
+        {
+          const { to, rank } = msg as { to: number; rank: string };
+          if (to === myId) {
+            console.log(`I was asked ${rank}s`);
           }
-        } else {
-          // TODO
         }
         break;
       default:

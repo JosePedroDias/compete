@@ -63,19 +63,36 @@ export class Card {
   onUpdate: () => void = () => {};
   onDispose: () => void = () => {};
 
-  constructor(id = '', back: Back = Back.Blue, suit?: Suit, rank?: Rank) {
-    this.id = id ? id : uuid();
-    this.back = back;
+  constructor(
+    arg: string | Card = '',
+    back: Back = Back.Blue,
+    suit?: Suit,
+    rank?: Rank,
+  ) {
+    if ((arg as any).back) {
+      const other = arg as Card;
+      this.suit = other.suit;
+      this.rank = other.rank;
+      this.back = other.back;
+      this.id = other.id;
+      this.owner = other.owner;
+      this.facingDown = other.facingDown;
+      this.position = [other.position[0], other.position[1]];
+      this.rotation = other.rotation;
+    } else {
+      const id = arg as string;
+      this.id = id ? id : uuid();
+      this.back = back;
 
-    if (suit) {
-      this.suit = suit;
-    }
-    if (rank) {
-      this.rank = rank;
-    }
-
-    if (!rank) {
-      this.facingDown = true;
+      if (suit) {
+        this.suit = suit;
+      }
+      if (rank) {
+        this.rank = rank;
+      }
+      if (!rank) {
+        this.facingDown = true;
+      }
     }
 
     // caching previous values in function context
@@ -85,6 +102,7 @@ export class Card {
       suit = this.suit;
       delete this.rank;
       delete this.suit;
+      if (!this.facingDown) this.facingDown = true;
       this.onUpdate();
     };
 
@@ -121,6 +139,10 @@ export class Card {
 
   // this method will be overridden by constructor
   recall(_suit?: Suit, _rank?: Rank) {}
+
+  clone(): Card {
+    return new Card(this);
+  }
 
   toString() {
     if (!this.rank) return `BLANK`;

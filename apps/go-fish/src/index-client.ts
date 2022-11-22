@@ -31,33 +31,21 @@ let cardId: string;
 let participantId: number;
 
 function onCardClick(c: Card, _cv: Container) {
-  //console.log('click', c, cv); // TODO SEND EVENTS
   if (c.owner !== myId) {
     console.log('ignore');
     return;
   }
   cardId = c.id;
-  console.log('saved', c);
-  ws.send({ op: 'ask', card: cardId, to: participantId || 0 });
+  console.log('asking for', c);
+  ws.send({ op: 'ask', cardId: cardId, to: participantId || 0 });
 }
 
-function importState({ stockPile, hands }: GoFishState) {
-  for (const pile of [stockPile, ...hands]) {
-    for (const c of pile) {
-      const cv = getCardVisual(c, onCardClick);
-      cv.scale.set(0.5);
-      tableCtn.addChild(cv);
-    }
+function syncStateWithVisuals({ stockPile, hands }: GoFishState) {
+  for (const c of [...stockPile, ...hands.flatMap((c) => c)]) {
+    const cv = getCardVisual(c, onCardClick);
+    cv.scale.set(0.5);
+    tableCtn.addChild(cv);
   }
-}
-
-function processCard(c: Card) {
-  const cc = new Card(c.id, c.back, c.suit, c.rank);
-  cc.owner = c.owner;
-  cc.setPosition(c.position[0], c.position[1]);
-  cc.setRotation(c.rotation);
-  //cc.setFacingDown(c.facingDown);
-  return cc;
 }
 
 let myId: number;
@@ -74,29 +62,28 @@ const ws = competeClient({
         break;
       case 'update-state':
         if (!st) {
-          const st0 = msg.state as GoFishState;
-
-          st = {
-            stockPile: st0.stockPile.map(processCard),
-            hands: st0.hands.map((h) => h.map(processCard)),
-          };
-
-          const participantIds: number[] = st.hands.map(
-            (h) => h[0].owner as number,
-          );
-          const currentPlayer = participantIds.indexOf(myId);
+          st = new GoFishState(msg.state as GoFishState);
 
           // SEE PLAYER #N PERSPECTIVE
-          const D_ANGLE = -360 / participantIds.length;
-          tableCtn.rotation = currentPlayer * D_ANGLE * DEG_TO_RAD;
+          const D_ANGLE = -360 / st.participants.length;
+          const currentPlayerIndex = st.participants.indexOf(myId);
+          tableCtn.rotation = currentPlayerIndex * D_ANGLE * DEG_TO_RAD;
 
-          importState(st);
-          // @ts-ignore
-          window.st = st;
+          syncStateWithVisuals(st);
         } else {
           // TODO
         }
-
+        break;
+      case 'next-to-play':
+        if (msg.id === myId) console.log('Our time to play!');
+        break;
+      case 'ask2':
+        {
+          const { to, rank } = msg as { to: number; rank: string };
+          if (to === myId) {
+            console.log(`I was asked ${rank}s`);
+          }
+        }
         break;
       default:
         console.warn(`unsupported opcode: ${msg.op}`);

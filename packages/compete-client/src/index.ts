@@ -31,7 +31,7 @@ export type CompeteClientOptions = {
    *
    * @param state
    */
-  onStateChange: (state: 'open' | 'closed') => void;
+  onStateChange?: (state: 'open' | 'closed') => void;
 };
 
 export type CompeteClientAPI = {

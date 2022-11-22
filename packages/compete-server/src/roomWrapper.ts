@@ -195,9 +195,11 @@ export function roomWrapper<St>({
     return room;
   }
 
-  function leaveRoom(ws: WebSocket2): Room {
+  function leaveRoom(ws: WebSocket2): Room | undefined {
     console.log('leaveRoom', ws.id);
-    const room = idToRoom.get(ws.id) as Room;
+    const room = idToRoom.get(ws.id);
+
+    if (!room) return;
 
     idToRoom.delete(ws.id);
     room.idToWs.delete(ws.id);
@@ -235,7 +237,7 @@ export function roomWrapper<St>({
     },
     onLeave(ws, code) {
       const room = leaveRoom(ws);
-      onLeave(ws, room, code);
+      room && onLeave(ws, room, code);
     },
     onMessage(ws, message) {
       const room = idToRoom.get(ws.id);
