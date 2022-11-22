@@ -1,11 +1,20 @@
-/*
-tracks changes on 1st level objects (as records)
-works ok for array assignments and it's methods push, pop, shift, unshift. support insertAt(n, v) and removeAt(n) for arrays
+/**
+ * Sync interface
+ */
+ export type SyncInterface<T> = T & {
+  sync: () => [string, any][];
+  patch: (diffs: [string, any][]) => void;
+  insertAt(index:number, value:any):void;
+  removeAt(index:number):void;
+};
 
-- the sort part is irrelevant on ES2015 as Object.keys order is stable
-*/
-
-export function trackObject(o: any) {
+/**
+ * This function transforms a regular object or array into a similar one supporting sync/patch feature.
+ * If object in not an array, sets get recorded for sync.
+ * If object is an array, array methods push/pop/shift/unshift plus insertAt and removeAt are synced
+ * @param o object to track
+ */
+export function trackObject<T>(o: T):SyncInterface<T> {
   const isArray = o instanceof Array;
 
   let yetToSync = isArray ? [] : new Map<string, any>();
@@ -85,7 +94,7 @@ export function trackObject(o: any) {
     }
   }
 
-  const proxy = new Proxy(o, {
+  const proxy = new Proxy(o as any, {
     get(target, k) {
       if (k === 'sync') return sync;
       if (k === 'patch') return patch;
@@ -111,10 +120,7 @@ export function trackObject(o: any) {
     },
   });
 
-  return proxy;
+  return proxy as SyncInterface<T>;
 }
 
-export type TO<T> = T & {
-  sync: () => [string, any][];
-  patch: (diffs: [string, any][]) => void;
-};
+

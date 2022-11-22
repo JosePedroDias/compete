@@ -1,8 +1,15 @@
-const DEG_TO_RAD = Math.PI / 180; // no pixi dependency please
+/**
+ * This module focuses on abstract representation of cards and operations on them
+ */
 
 import { v4 as uuid } from 'uuid';
 import { fromPolar } from '../geometry';
 
+const DEG_TO_RAD = Math.PI / 180; // no pixi dependency please
+
+/**
+ * Represents a suit of cards
+ */
 export enum Suit {
   Diamonds = 'D', // red
   Spades = 'S', // black
@@ -10,6 +17,9 @@ export enum Suit {
   Clubs = 'C', // black
 }
 
+/**
+ * Represents a rank of cards
+ */
 export enum Rank {
   Ace = 'A',
   Two = '2',
@@ -27,11 +37,20 @@ export enum Rank {
   Joker = 'R',
 }
 
+/**
+ * Represents all the possible back designs cards can have
+ */
 export enum Back {
   Blue = 'B1',
   Red = 'B2',
 }
 
+/**
+ * The abstract definition of a playing card
+ * 
+ * We use the recall/forget feature to allow the server to keep the full card info but manage which players can know it and which can be oblivious of this face value
+ * The constructor holds a context where those attributes can be temporarily stored, so that public serialization prevents them from being broadcasted
+ */
 export class Card {
   suit?: Suit;
   rank?: Rank;
@@ -60,7 +79,6 @@ export class Card {
     }
 
     // caching previous values in function context
-
     this.forget = function () {
       if (!this.rank) throw new Error('Card had no value!');
       rank = this.rank;
@@ -122,6 +140,12 @@ export class Card {
   }
 }
 
+/**
+ * Auxiliary function to return a set of cards
+ * @param withJokers pass true to have jokers in the set
+ * @param back pass back to define the card back variant for all the cards in the set
+ * @param oddOfUnknown 
+ */
 export function getDeck(
   withJokers: boolean,
   back: Back = Back.Blue,
@@ -145,7 +169,12 @@ export function getDeck(
   return cards;
 }
 
-// fisher-yates
+/**
+ * Fisher-Yates shuffle algorithm
+ * 
+ * @param arr the array of cards
+ * @param inPlace if true, shuffling is done in place, otherwise a new shuffled array is returned
+ */
 export function shuffle<T>(arr: T[], inPlace = false) {
   if (!inPlace) {
     arr = Array.from(arr);
@@ -168,6 +197,13 @@ export function place(cards: Card[], [x, y]: [number, number]) {
   }
 }
 
+/**
+ * Change the side facing up
+ * 
+ * @param cards cards to affect
+ * @param facingDown facing down state to set
+ * @param forgetRecover if true, the actual face value is forgotten
+ */
 export function face(
   cards: Card[],
   facingDown: boolean,
@@ -182,6 +218,15 @@ export function face(
   }
 }
 
+/**
+ * Layout a set of cards as an arc
+ * 
+ * @param cards cards to affect
+ * @param center center of the arc
+ * @param delta delta position between cards
+ * @param _degrees base degrees for the cards in the arc (orientation)
+ * @param dDegrees delta degrees to affect per card
+ */
 export function arc(
   cards: Card[],
   [_x, _y]: [number, number],
@@ -202,6 +247,12 @@ export function arc(
   }
 }
 
+/**
+ * Reorders cards using a given heuristic
+ * 
+ * @param cards cards to reorder
+ * @param heuristicFn heuristic to apply to each card as criteria for sorting
+ */
 export function reorder(cards: Card[], heuristicFn: (c: Card) => number) {
   cards.sort((a: Card, b: Card) => heuristicFn(a) - heuristicFn(b));
 }
@@ -223,6 +274,14 @@ const _rankOrder: string[] = [
   Rank.Two,
   Rank.Joker,
 ];
+
+/**
+ * Returns an heuristic which can be used to correctly order cards in an array
+ * 
+ * @param suitsFirst whether to prioritize suits over ranks
+ * @param suitsOrder which order different suits get ordered
+ * @param rankOrder which order different ranks get ordered
+ */
 export function cardHeuristicFactory(
   suitsFirst = true,
   suitsOrder: string[] = _suitsOrder,
@@ -235,6 +294,15 @@ export function cardHeuristicFactory(
     rankScale * (rankOrder.indexOf(c.rank || '') + 1);
 }
 
+/**
+ * Deals card hands as arcs around a center point
+ * 
+ * @param deck array of cards to get cards from
+ * @param param1 center point
+ * @param cardsPerHand number of cards to give each player
+ * @param numPlayers  number of players to assign cards
+ * @param heuristicFn heuristic function to use to order cards in each hand
+ */
 export function dealCards(
   deck: Card[],
   [W2, H2]: [number, number],

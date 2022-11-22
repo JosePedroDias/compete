@@ -22,3 +22,4 @@ export {
 } from './cards/theme';
 export { toPolar, fromPolar } from './geometry';
 export { trackObject } from './trackObject';
+export type { SyncInterface } from './trackObject';
