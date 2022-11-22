@@ -15,10 +15,10 @@ roomWrapper<T3Board>({
   },
   onJoin(ws: WebSocket2, room: Room) {
     ws.send({ op: 'my-id', id: ws.id });
-    room.roomBroadcast({ op: 'other-id', id: ws.id }, ws);
+    room.broadcast({ op: 'other-id', id: ws.id }, ws);
   },
   onLeave(ws: WebSocket2, room: Room) {
-    room.roomBroadcast({ op: 'player-left', id: ws.id }, ws);
+    room.broadcast({ op: 'player-left', id: ws.id }, ws);
   },
   onGameStart(room: Room): T3Board {
     console.log('onGameStart');
@@ -43,7 +43,7 @@ roomWrapper<T3Board>({
       console.log(from, ts, position);
       const [x, y] = position;
 
-      const ws2 = room.wsFromId(from);
+      const ws2 = room.idToWs.get(from);
 
       if (from !== nextId) {
         const message = 'ignoring move (not your turn)';
@@ -60,7 +60,7 @@ roomWrapper<T3Board>({
 
         if (st.hasWon(nextId)) {
           const message = `${nextId} won!`;
-          room.roomBroadcast({ op: 'announce', message });
+          room.broadcast({ op: 'announce', message });
           console.log(message);
           st.whoWon = nextId;
           setTimeout(() => {
@@ -69,7 +69,7 @@ roomWrapper<T3Board>({
           }, 50);
         } else if (st.isFull()) {
           const message = `board is full!`;
-          room.roomBroadcast({ op: 'announce', message });
+          room.broadcast({ op: 'announce', message });
           console.log(message);
           setTimeout(() => {
             room.hasStarted = false;

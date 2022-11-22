@@ -86,7 +86,7 @@ export function wrapper({
     return maxId++;
   }
 
-  const idToWsInstance = new Map<number, WebSocket2>(); // id -> ws
+  const idToWs = new Map<number, WebSocket2>(); // id -> ws
 
   /**
    * Sends a message to everyone in the server (optionally but one)
@@ -96,7 +96,7 @@ export function wrapper({
    */
   function broadcast(msg: any, ignoreMe?: WebSocket2) {
     const msgO = pack(msg);
-    const wss = Array.from(idToWsInstance.values());
+    const wss = Array.from(idToWs.values());
     for (const ws of wss) {
       // @ts-ignore
       if (ws !== ignoreMe) ws._send(msgO, true);
@@ -113,7 +113,7 @@ export function wrapper({
         ws.send = (data: any) => ws._send(pack(data), true);
 
         ws.id = getId();
-        idToWsInstance.set(ws.id, ws as any as WebSocket2);
+        idToWs.set(ws.id, ws as any as WebSocket2);
         //console.log(`ws open: ${ws.id}`);
 
         onJoin(ws as any as WebSocket2);
@@ -132,7 +132,7 @@ export function wrapper({
         }, */
 
       close: (ws: WebSocket, code: any, _message: any) => {
-        idToWsInstance.delete(ws.id);
+        idToWs.delete(ws.id);
         //console.log(`ws closed ${ws.id} ok`);
 
         onLeave(ws as any as WebSocket2, code);
@@ -149,5 +149,5 @@ export function wrapper({
       }
     });
 
-  return { idToWsInstance, broadcast };
+  return { idToWs, broadcast };
 }

@@ -59,10 +59,11 @@ export type RoomWrapperObj<St> = Omit<
  * A room holds a set of participants, the attribute whether the round has started and an auxiliary timer
  */
 export class Room {
+  idToWs = new Map<number, WebSocket2>(); // id -> ws
   /**
    * all current participants in the room
    */
-  participants = new Set<WebSocket2>();
+  participants: WebSocket2[] = [];
   /**
    * whether a round is going on (between gameStart and gameEnd)
    */
@@ -73,24 +74,14 @@ export class Room {
   timer?: NodeJS.Timer; // internal usage only
 
   /**
-   * returns the websocket2 instance given its id
-   *
-   * @param id id to look for
-   */
-  wsFromId(id: number): WebSocket2 | undefined {
-    return Array.from(this.participants).find((ws) => ws.id === id);
-  }
-
-  /**
    * Sends a message to all participants in a room (optionally but one)
    *
    * @param msg message to send
-   * @param ignoreMe optional. if sent, this recipient will be skipped from roomBroadcast
+   * @param ignoreMe optional. if sent, this recipient will be skipped from broadcast
    */
-  roomBroadcast(msg: any, ignoreMe?: WebSocket2) {
+  broadcast(msg: any, ignoreMe?: WebSocket2) {
     const msgO = pack(msg);
-    const wss = Array.from(this.participants);
-    for (const ws of wss) {
+    for (const ws of this.participants) {
       // @ts-ignore
       if (ws !== ignoreMe) ws._send(msgO, true);
     }
@@ -153,7 +144,7 @@ export function roomWrapper<St>({
     console.log('getRoom', ws.id);
     let room = rooms.find(
       (room) =>
-        !room.hasStarted && room.participants.size < roomOpts.maxPlayers,
+        !room.hasStarted && room.participants.length < roomOpts.maxPlayers,
     );
     if (!room) {
       if (rooms.length >= roomOpts.maxRooms) {
@@ -166,10 +157,12 @@ export function roomWrapper<St>({
       console.log('  reusing room');
     }
 
-    room.participants.add(ws);
     idToRoom.set(ws.id, room);
+    room.idToWs.set(ws.id, ws);
 
-    if (room.participants.size >= roomOpts.minPlayers) {
+    room.participants = Array.from(room.idToWs.values());
+
+    if (room.participants.length >= roomOpts.minPlayers) {
       room.hasStarted = true;
       let st: St = onGameStart(room);
       const events: Event[] = [];
@@ -182,7 +175,7 @@ export function roomWrapper<St>({
         events.splice(0, events.length);
         gameStates.set(r, st);
 
-        if (room && room.participants.size > 0) {
+        if (room && room.participants.length > 0) {
           // @ts-ignore
           if (st.sync) {
             // @ts-ignore
@@ -206,10 +199,11 @@ export function roomWrapper<St>({
     console.log('leaveRoom', ws.id);
     const room = idToRoom.get(ws.id) as Room;
 
-    room.participants.delete(ws);
     idToRoom.delete(ws.id);
+    room.idToWs.delete(ws.id);
+    room.participants = Array.from(room.idToWs.values());
 
-    if (room.hasStarted && room.participants.size < roomOpts.minPlayers) {
+    if (room.hasStarted && room.participants.length < roomOpts.minPlayers) {
       //rooms.splice(rooms.indexOf(room), 1);
       clearInterval(room.timer);
       const st: St = gameStates.get(room) as St;
@@ -217,7 +211,7 @@ export function roomWrapper<St>({
       onGameEnd(room, st);
     }
 
-    if (room.participants.size === 0) {
+    if (room.participants.length === 0) {
       console.log('  deleting room');
       rooms.splice(rooms.indexOf(room), 1);
     }

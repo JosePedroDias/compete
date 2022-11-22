@@ -14,10 +14,10 @@ roomWrapper<GoFishState>({
   },
   onJoin(ws: WebSocket2, room: Room) {
     ws.send({ op: 'my-id', id: ws.id });
-    room.roomBroadcast({ op: 'other-id', id: ws.id }, ws);
+    room.broadcast({ op: 'other-id', id: ws.id }, ws);
   },
   onLeave(ws: WebSocket2, room: Room, _code: number) {
-    room.roomBroadcast({ op: 'player-left', id: ws.id }, ws);
+    room.broadcast({ op: 'player-left', id: ws.id }, ws);
   },
   adaptState(st: GoFishState, id: number) {
     getView(st, id);
