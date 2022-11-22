@@ -40,7 +40,7 @@ roomWrapper<T3Board>({
       ts,
       data: { position },
     } of events) {
-      console.log(from, ts, position);
+      console.log(from.id, ts, position);
       const [x, y] = position;
 
       if (from.id !== nextId) {

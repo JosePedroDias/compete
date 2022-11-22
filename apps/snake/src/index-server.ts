@@ -39,7 +39,7 @@ function removeSnake(id: number): void {
 function reset() {
   snakes = new Map();
   board.fill(CHAR_EMPTY);
-  for (const id of idToWsInstance.keys()) addSnake(id);
+  for (const id of idToWs.keys()) addSnake(id);
 }
 
 function onTick() {
@@ -68,7 +68,7 @@ function onTick() {
 
 setInterval(onTick, TICK_RATE_MS);
 
-const { idToWsInstance, broadcast } = wrapper({
+const { idToWs, broadcast } = wrapper({
   wsOpts: {
     maxPayloadLength: 4 * 1024, // bytes?
     idleTimeout: 60, // secs?
