@@ -7,41 +7,95 @@ import { pack, unpack } from 'msgpackr';
 
 export type CompeteClientOptions = {
   /**
+   * The address of the websocket server
+   * Defaults to `ws://127.0.0.1:9001`
+   */
+  address?: string;
+
+  /**
    * This callback will be executed every time we receive a new message from the websocket server
+   *
    * @param data
    */
   onMessage(data: any): void;
+
   /**
-   * The address of the websocket server
+   * This callback will be execute if an error occurs
+   *
+   * @param error
    */
-  address?: string;
+  onError?: (error: any) => void;
+
+  /**
+   * Executed when state changes
+   *
+   * @param state
+   */
+  onStateChange: (state: 'open' | 'closed') => void;
 };
 
 export type CompeteClientAPI = {
   /**
    * Sends a message to the websocket server using message pack
-   * @param o the data to send
+   * @param msg the message to send
+   * @returns true if message was sent immediately, false if it was queued for later
    */
-  send(o: any): void;
+  send(msg: any): boolean;
+
+  /**
+   * call this to attempt resuming a closed connection
+   */
+  reconnect(): void;
+
+  /**
+   * by default outgoing messages get queued for sending once the connection is restored. call this to discard them
+   */
+  discardQueuedMessages(): void;
 };
 
-export function competeClient(options: CompeteClientOptions): CompeteClientAPI {
-  const { onMessage, address } = options;
+/**
+ *
+ * @param competeClientOptions
+ */
+export function competeClient({
+  onMessage,
+  onStateChange,
+  onError,
+  address,
+}: CompeteClientOptions): CompeteClientAPI {
+  function connect() {
+    const ws = new WebSocket(address || 'ws://127.0.0.1:9001');
+    ws.binaryType = 'arraybuffer'; // to get an arraybuffer instead of a blob
+    return ws;
+  }
 
-  // @ts-ignore
-  const ws = new WebSocket(address || 'ws://127.0.0.1:9001');
-  ws.binaryType = 'arraybuffer'; // to get an arraybuffer instead of a blob
+  const ws: WebSocket = connect();
+
+  let queuedMessages: any[] = [];
+
+  function sendMsg(msg: any): boolean {
+    if (!ws.OPEN) {
+      queuedMessages.push(msg);
+      return false;
+    } else {
+      ws.send(pack(msg));
+      return true;
+    }
+  }
 
   ws.addEventListener('open', () => {
-    console.log('open');
+    onStateChange && onStateChange('open');
+
+    let msg;
+    while ((msg = queuedMessages.shift())) sendMsg(msg);
   });
 
   ws.addEventListener('close', () => {
-    console.log('close');
+    onStateChange && onStateChange('closed');
   });
 
   ws.addEventListener('error', (ev: any) => {
-    console.error(ev);
+    onError && onError(ev);
   });
 
   ws.addEventListener('message', (ev: any) => {
@@ -50,8 +104,14 @@ export function competeClient(options: CompeteClientOptions): CompeteClientAPI {
   });
 
   return {
-    send(o: any): void {
-      ws.send(pack(o));
+    send(msg: any): boolean {
+      return sendMsg(msg);
+    },
+    discardQueuedMessages(): void {
+      queuedMessages = [];
+    },
+    reconnect(): void {
+      if (ws.readyState === WebSocket.CLOSED) connect();
     },
   };
 }
