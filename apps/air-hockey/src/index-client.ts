@@ -1,5 +1,5 @@
 import { Application, Container, Sprite, Texture, utils } from 'pixi.js';
-import { Engine, Runner, Bodies, Composite, Events, Body } from 'matter-js';
+import { Engine, Bodies, Composite, Events, Body, Vector } from 'matter-js';
 import { Howl, Howler } from 'howler';
 
 import { V2 } from 'compete-utils';
@@ -43,6 +43,8 @@ const edgeR = 50;
 const engine = Engine.create();
 engine.gravity.y = 0;
 engine.gravity.x = 0;
+engine.positionIterations = 3; // 6 is default (lower = less precision but more lightweight?)
+engine.velocityIterations = 2; // 4 is default
 
 let resetPuck = false;
 
@@ -155,17 +157,74 @@ function setupPhysics(): [Body, Body, Body] {
 }
 const [puckBd, pusher1Bd, pusher2Bd] = setupPhysics();
 
-const runner = Runner.create();
+let replaying = false;
 
-Runner.run(runner, engine);
+let frameNo = 0;
+const fps = 60;
+const MAX_LENGTH = 60;
+
+let inputs:any[] = [];
+let currentInput:any[] = [];
+
+let frames:any[] = [];
+let currentFrame:any[] = [];
+
+document.addEventListener('keyup', (ev) => {
+  if (ev.key !== 'r') return;
+  ev.preventDefault();
+  ev.stopPropagation();
+  replaying = true;
+});
+
+setInterval(() => {
+  if (!replaying) {
+    inputs.push(currentInput);
+    currentInput = [];
+    if (inputs.length > MAX_LENGTH) inputs.shift();
+  }
+
+  Engine.update(engine, 1000/fps);
+  ++frameNo;
+  frames.push(currentFrame);
+  currentFrame = [];
+  if (frames.length > MAX_LENGTH) frames.shift();
+
+  //if (frameNo === 180) debugger;
+}, 1000 /fps);
+
+function toV2(v:Vector): [number, number] {
+  return [v.x, v.y];
+}
+
+function restoreBody(body: Body, backup:any) {
+  Body.setAngularVelocity(body, backup.angularVelocity);
+  Body.setAngle(body, backup.angle);
+  Body.setVelocity(body, { x: backup.velocity[0], y: backup.velocity[1] });
+  Body.setPosition(body, { x: backup.position[0], y: backup.position[1] });
+  Body.setInertia(body, backup.inertia);
+}
+
+function restoreBodies() {
+  const frame = frames[0];
+  restoreBody(puckBd, frame[0]);
+  restoreBody(pusher1Bd, frame[1]);
+  restoreBody(pusher2Bd, frame[2]);
+}
 
 function bodyToSprite(body: Body, sprite: Sprite) {
   sprite.position.x = body.position.x;
   sprite.position.y = body.position.y;
+
+  currentFrame.push({
+    position: toV2(body.position),
+    angle: body.angle,
+    velocity: toV2(body.velocity),
+    angularVelocity: body.angularVelocity,
+    inertia: body.inertia,
+  });
 }
 
 Events.on(engine, 'afterUpdate', () => {
-  // afterUpdate afterTick
   bodyToSprite(puckBd, puckSp);
   bodyToSprite(pusher1Bd, pusher1Sp);
   bodyToSprite(pusher2Bd, pusher2Sp);
@@ -208,21 +267,36 @@ app.stage.addChild(ctn);
 
 app.stage.cursor = 'none';
 app.stage.interactive = true;
-let p: V2;
+let p1: V2 = [0, 0.5 * tableDims[1]];
+let p2: V2 = [0, -0.5 * tableDims[1]];
 
 app.stage.on('pointermove', (ev) => {
   const pos = ev.data.global;
-  p = [pos.x - W2, pos.y - H2];
+  p1 = [pos.x - W2, pos.y - H2];
 });
 
-const velFactor = 0.4;
+const VEL_FACTOR = 0.4;
 
 Events.on(engine, 'afterUpdate', () => {
-  if (!p) return;
+  if (replaying) {
+    restoreBodies();
+    frames = [];
+    inputs = [];
+    replaying = false;
+  }
+
   Body.setVelocity(pusher1Bd, {
-    x: velFactor * (p[0] - pusher1Sp.position.x),
-    y: velFactor * (p[1] - pusher1Sp.position.y),
+    x: VEL_FACTOR * (p1[0] - pusher1Sp.position.x),
+    y: VEL_FACTOR * (p1[1] - pusher1Sp.position.y),
   });
+
+  Body.setVelocity(pusher2Bd, {
+    x: VEL_FACTOR * (p2[0] - pusher2Sp.position.x),
+    y: VEL_FACTOR * (p2[1] - pusher2Sp.position.y),
+  });
+
+  currentInput.push(p1);
+  currentInput.push(p2);
 
   if (resetPuck) {
     Body.setPosition(puckBd, { x: 0, y: 0 });

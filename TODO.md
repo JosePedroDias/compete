@@ -28,3 +28,22 @@ https://github.com/rtc-io/rtc
 
 
 ggpo ~ https://github.com/genxium/DelayNoMore
+
+
+
+https://github.com/liabru/matter-js/blob/master/src/body/Body.js#L626
+
+position
+positionPrev
+
+angle
+anglePrev
+
+velocity
+angularVelocity
+
+speed
+angularSpeed
+
+torque
+inertia
