@@ -13,3 +13,5 @@ and [example games](apps/).
 - [matter](https://brm.io/matter-js/docs/)
 - pixi [1](https://pixijs.download/release/docs/index.html) [2](https://pixijs.io/guides/)
 - trig-fills https://github.com/strainer/trigfills (TODO)
+- [simplex-noise](https://github.com/jwagner/simplex-noise.js)
+- [alea (rng)](https://github.com/coverslide/node-alea)

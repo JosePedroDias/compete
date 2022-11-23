@@ -6,6 +6,12 @@ import { Application, Container, Sprite, Texture, utils } from 'pixi.js';
 import { Engine, Bodies, Composite, Events, Body, Vector } from 'matter-js';
 import { Howl, Howler } from 'howler';
 
+import Alea from 'alea';
+const rng = Alea();
+
+import { createNoise2D } from 'simplex-noise';
+const n2d = createNoise2D(rng);
+
 import { V2 } from 'compete-utils';
 
 utils.skipHello();
@@ -167,11 +173,11 @@ let frameNo = 0;
 const fps = 60;
 const MAX_LENGTH = 60;
 
-let inputs:any[] = [];
-let currentInput:any[] = [];
+let inputs: any[] = [];
+let currentInput: any[] = [];
 
-let frames:any[] = [];
-let currentFrame:any[] = [];
+let frames: any[] = [];
+let currentFrame: any[] = [];
 
 document.addEventListener('keyup', (ev) => {
   if (ev.key !== 'r') return;
@@ -187,20 +193,20 @@ setInterval(() => {
     if (inputs.length > MAX_LENGTH) inputs.shift();
   }
 
-  Engine.update(engine, 1000/fps);
+  Engine.update(engine, 1000 / fps);
   ++frameNo;
   frames.push(currentFrame);
   currentFrame = [];
   if (frames.length > MAX_LENGTH) frames.shift();
 
   //if (frameNo === 180) debugger;
-}, 1000 /fps);
+}, 1000 / fps);
 
-function toV2(v:Vector): [number, number] {
+function toV2(v: Vector): [number, number] {
   return [v.x, v.y];
 }
 
-function restoreBody(body: Body, backup:any) {
+function restoreBody(body: Body, backup: any) {
   Body.setAngularVelocity(body, backup.angularVelocity);
   Body.setAngle(body, backup.angle);
   Body.setVelocity(body, { x: backup.velocity[0], y: backup.velocity[1] });
@@ -272,7 +278,7 @@ app.stage.addChild(ctn);
 app.stage.cursor = 'none';
 app.stage.interactive = true;
 let p1: V2 = [0, 0.5 * tableDims[1]];
-let p2: V2 = [0, -0.5 * tableDims[1]];
+const p2: V2 = [0, -0.5 * tableDims[1]];
 
 app.stage.on('pointermove', (ev) => {
   const pos = ev.data.global;
@@ -282,6 +288,12 @@ app.stage.on('pointermove', (ev) => {
 const VEL_FACTOR = 0.4;
 
 Events.on(engine, 'afterUpdate', () => {
+  {
+    const x = frameNo * 0.025;
+    p2[0] = 100 * (n2d(x, 0) - 0.5);
+    p2[1] = -0.5 * tableDims[1] + 100 * (n2d(x, 1) - 0.5);
+  }
+
   if (replaying) {
     restoreBodies();
     frames = [];
