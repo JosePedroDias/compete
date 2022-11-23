@@ -37,6 +37,8 @@ Howler.volume(0.6);
 
 // matter
 
+const scoreboard = [0, 0];
+
 const W = 1280;
 const H = 1024;
 const W2 = W / 2;
@@ -71,6 +73,7 @@ function setupPhysics(): [Body, Body, Body] {
     optsWalls,
   );
   goalTopBd.label = 'goal';
+  goalTopBd.plugin.goalIndex = 0;
 
   const edgeTopLeftBd = Bodies.rectangle(
     -0.5 * (goalWidth + goalWallWidth),
@@ -98,6 +101,7 @@ function setupPhysics(): [Body, Body, Body] {
     optsWalls,
   );
   goalBottomBd.label = 'goal';
+  goalBottomBd.plugin.goalIndex = 1;
 
   const edgeBottomLeftBd = Bodies.rectangle(
     -0.5 * (goalWidth + goalWallWidth),
@@ -337,6 +341,9 @@ Events.on(engine, 'collisionStart', (ev) => {
         gameSfx.get('wall')?.play();
         break;
       case 'goal_puck':
+        const idx = (p.bodyA.label === 'goal' ? p.bodyA : p.bodyB).plugin.goalIndex;
+        ++scoreboard[idx];
+        console.log(`scoreboard: ${scoreboard[0]}:${scoreboard[1]}`);
         gameSfx.get('goal')?.play();
         resetPuck = true;
         break;
