@@ -1,3 +1,7 @@
+// override math functions so different browsers and node all return the same values
+import trigfills from 'trigfills';
+trigfills.setmaths();
+
 import { Application, Container, Sprite, Texture, utils } from 'pixi.js';
 import { Engine, Bodies, Composite, Events, Body, Vector } from 'matter-js';
 import { Howl, Howler } from 'howler';
