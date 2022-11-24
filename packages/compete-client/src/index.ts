@@ -8,7 +8,7 @@ import { pack, unpack } from 'msgpackr';
 export type CompeteClientOptions = {
   /**
    * The address of the websocket server
-   * Defaults to `ws://127.0.0.1:9001`
+   * Defaults to `ws(s)://(web server's hostname):9001`
    */
   address?: string;
 
@@ -64,7 +64,12 @@ export function competeClient({
   address,
 }: CompeteClientOptions): CompeteClientAPI {
   function connect() {
-    const ws = new WebSocket(address || 'ws://127.0.0.1:9001');
+    const ws = new WebSocket(
+      address ||
+        `${location.protocol === 'http:' ? 'ws:' : 'wss:'}//${
+          location.hostname
+        }:9001`,
+    );
     ws.binaryType = 'arraybuffer'; // to get an arraybuffer instead of a blob
     return ws;
   }
