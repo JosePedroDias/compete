@@ -74,17 +74,9 @@ app.stage.on('pointermove', (ev) => {
   p1 = [pos.x - W2, pos.y - H2];
 });
 
-let myId: number;
-
 const ws = competeClient({
   onMessage(msg: any) {
     switch (msg.op) {
-      case 'my-id':
-        myId = msg.id;
-        console.log(`id:${myId}`);
-        break;
-      case 'other-id':
-        break;
       case 'update-state':
         {
           const st = msg.state as AirHockeyState;

@@ -2,50 +2,97 @@
 
 Be sure to visit the [docs](https://josepedrodias.github.io/compete/packages/compete-server/docs/index.html).
 
+The example games you can find under the `apps` folder should help grasp how to design compete games.
 
-## group players in rooms
+This package drives an http/ws server in nodejs which uses and serializes messages using message pack.
 
-```js
-// example roomOpts
-{
-    maxRooms: 3,   // can server up to 3 simultaneous rooms in this instance
-    minPlayers: 2, // min players in a room required for a game to start
-    maxPlayers: 5, // max players in a room able to have in a room (TODO: does the game restart if participants number increase? up to a new cb function to decide?)
-    tickRate: 2,   // number of times per second the state is recomputed and served back to participant players
-}
+
+## core opcodes
+
+### ping
+
+server -> client
+
+```ts
+{ op: 'ping', serverNow: number }
+// serverNow - epoch milliseconds of when the server fired the ping message
 ```
 
-## roomWrapper API (more powerful)
+Sent from core `wrapper`, so available whether game uses `roomWrapper` or `wrapper`.  
+Is auto-managed by the client, which exposes ping stats as the result of `ws.getPing()`.  
+Client automatically responds with pong so the server can calculate RTT on his side too.
 
-```js
-onGameStart: (room: Room) => St; // computes the initial game state from room state
-onGameEnd: (room: Room, st: St) => void; // called once game ends (TODO: not doing much ATM)
-onGameTick: (room: Room, events: Event[], st: St) => St; // receives the existing game state and all the events received from players since the last tick and returns a new state
-adaptState?: (st: St, id: number) => St; // send a modified state view for each participant player. identity function if omitted.
+### pong
+
+client -> server
+
+```ts
+{ op: 'pong', serverNow: number, clientNow: number }
+// serverNow - epoch milliseconds of when the server fired the ping message
+// clientNow - epoch milliseconds of when the client fired the pong message as result of having received a ping
 ```
 
-## what's a room?
-```js
-participants: Set<WebSocket2>(); // set of players that take part in this game
+Sent from core `wrapper`, so available whether game uses `roomWrapper` or `wrapper`.  
+Is auto-managed by the client, which exposes ping stats as the result of `ws.getPing()`.  
+Client automatically responds with pong so the server can calculate RTT on his side too.
+
+### my-id
+
+server -> client
+
+```ts
+{ op: 'my-id', id: number }
+// id - the unique id this player has in the server
 ```
 
-## wrapper API (lower level, provides less goodies)
+Only sent if `roomWrapper` is used.  
+Is auto-managed by the client, which exposes its value in `ws.getMyId()`.
 
-```js
-onJoin?: (ws: WebSocket2) => void;                  // called when player joins the server
-onLeave?: (ws: WebSocket2, code: number) => void;   // called when player leaves the server
-onMessage?: (ws: WebSocket2, message: any) => void; // receives data from msgpack
+### other-id-joined
 
-// it also exposes additional symbols:
-idToWsInstance: Map<number, WebSocket2>(); // allowing us to address any connected client granted we know its id
-broadcast(msg: any, ignoreMe?: WebSocket2); // send a message to every connected player (or all but ignoreMe)
+server -> client
+
+```ts
+{ op: 'other-id-joined', id: number }
+// id - the unique id the other player has in the server
 ```
 
-## what does WebSocket2 expose?
+Only sent if `roomWrapper` is used.  
+Is auto-managed by the client, which exposes other players in the room as the result of `ws.getOtherIds()`.
 
-The WebSocket2 class abstracts a client connection
-It exposes just these 2:
-```js
-id:number   // unique id for the running session
-send(o:any) // sends data with msgpack
+### other-id-left
+
+server -> client
+
+```ts
+{ op: 'other-id-left', id: number }
+// id - the unique id the other player has in the server
 ```
+
+Only sent if `roomWrapper` is used.  
+Is auto-managed by the client, which exposes other players in the room as the result of `ws.getOtherIds()`.
+
+### update-state
+
+server -> client
+
+```ts
+{ op: 'update-state', state: any }
+// state - the state view the client gets from the server after every tick from a room server as long as a game is taking place
+```
+
+Only sent if `roomWrapper` is used.  
+It is NOT auto-managed - it's up to game logic to handle state updates.  
+If the roomWrapper has `adaptState` an function, clients receive dedicated views, otherwise all players get the same shared state
+### error-server-full
+
+server -> client
+
+```ts
+{ op: 'error-server-full', text: string }
+// text - the human readable error message from the server
+```
+
+Only sent if `roomWrapper` is used.  
+Will happen at connection stage if server is out of rooms.  
+Client will leave the connection if this happens.

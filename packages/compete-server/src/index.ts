@@ -3,5 +3,13 @@
  */
 
 export { roomWrapper, Room } from './roomWrapper';
+export type { RoomOpts, RoomWrapperObj, Event } from './roomWrapper';
+
 export { wrapper } from './wrapper';
-export type { Event, WebSocket2 } from './roomWrapper';
+export type {
+  WebSocket2,
+  PingStats,
+  WrapperObj,
+  AppOpts,
+  WSOpts,
+} from './wrapper';

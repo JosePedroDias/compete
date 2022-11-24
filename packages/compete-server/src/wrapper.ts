@@ -26,6 +26,8 @@ export type WSOpts = {
   idleTimeout?: number;
 };
 
+export type PingStats = { min: number; max: number; average: number };
+
 /**
  * An enriched websocket instance (holds a unique id per client beside send method)
  */
@@ -34,12 +36,18 @@ export type WebSocket2 = {
    * unique id for the player in the game server
    */
   id: number;
+
   /**
    * Sends a message to this player
    *
    * @param msg the message to send
    */
   send(msg: any): void;
+
+  /**
+   * returns the ping stats. numbers are RTT in milliseconds
+   */
+  getPing(): PingStats;
 };
 
 /**
@@ -87,6 +95,8 @@ export function wrapper({
   }
 
   const idToWs = new Map<number, WebSocket2>(); // id -> ws
+  const PING_MAX_ITEMS = 5;
+  const pingReadings: Map<number, number[]> = new Map(); // id -> latest RTTs
 
   const PING_INTERVAL_MS = 1000;
   setInterval(() => {
@@ -116,37 +126,53 @@ export function wrapper({
       compression: SHARED_COMPRESSOR,
       ...wsOpts,
 
-      open: (ws: WebSocket) => {
-        ws._send = ws.send;
-        ws.send = (data: any) => ws._send(pack(data), true);
+      open: (_ws: WebSocket) => {
+        // hydrate ws with additional attributes and methods
+        _ws._send = _ws.send;
+        _ws.send = (data: any) => _ws._send(pack(data), true);
+        _ws.getPing = function () {
+          const pr = pingReadings.get(this.id) || [];
+          const min = Math.min(...pr);
+          const max = Math.max(...pr);
+          const average = pr.reduce((prev, curr) => prev + curr, 0) / pr.length;
+          return { min, max, average };
+        };
+        _ws.id = getId();
 
-        ws.id = getId();
-        idToWs.set(ws.id, ws as any as WebSocket2);
+        const ws = _ws as any as WebSocket2;
+
+        idToWs.set(ws.id, ws);
+        pingReadings.set(ws.id, []);
+
         //console.log(`ws open: ${ws.id}`);
-
-        onJoin(ws as any as WebSocket2);
+        onJoin(ws);
       },
 
       message: (_ws: WebSocket, message: any, isBinary: boolean) => {
-        if (!isBinary) return; // we expect all incoming messages to be binary msgpack encoded
-
         const ws = _ws as any as WebSocket2;
-        const data = unpack(Buffer.from(message));
 
+        if (!isBinary) return; // we expect all incoming messages to be binary msgpack encoded
+        const data = unpack(Buffer.from(message));
         if (typeof data !== 'object' || !data.op) return;
-        
+
         switch (data.op) {
           case 'pong':
             {
               const serverNow2 = Date.now();
-              const { serverNow, clientNow } = data as {
-                serverNow: number;
-                clientNow: number;
-              };
-              const rttOver2 = clientNow - serverNow;
-              const rttOver2_ = serverNow2 - clientNow;
-              const rtt = rttOver2 + rttOver2_;
-              console.warn(`pong id:${ws.id}, rtt:${rtt}`);
+              const { serverNow } = data as { serverNow: number };
+
+              const rtt = serverNow2 - serverNow;
+              //console.warn(`pong id:${ws.id}, rtt:${rtt}`);
+
+              let pr = pingReadings.get(ws.id);
+              if (!pr) {
+                // should not happen but...
+                pr = [];
+                pingReadings.set(ws.id, pr);
+              }
+              pr.unshift(rtt);
+              if (pr.length > PING_MAX_ITEMS) pr.pop();
+              //console.warn(`pong ${ws.id} -> ${JSON.stringify(ws.getPing())}`);
             }
             break;
           default:
@@ -158,11 +184,14 @@ export function wrapper({
             console.log(`ws backpressure: ${ws.getBufferedAmount()}`);
         }, */
 
-      close: (ws: WebSocket, code: any, _message: any) => {
-        idToWs.delete(ws.id);
-        //console.log(`ws closed ${ws.id} ok`);
+      close: (_ws: WebSocket, code: any, _message: any) => {
+        const ws = _ws as any as WebSocket2;
 
-        onLeave(ws as any as WebSocket2, code);
+        idToWs.delete(ws.id);
+        pingReadings.delete(ws.id);
+
+        //console.log(`ws closed ${ws.id} ok`);
+        onLeave(ws, code);
       },
     })
     /* .any('/*', (res, req) => {
