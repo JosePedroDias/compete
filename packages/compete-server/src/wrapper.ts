@@ -88,6 +88,14 @@ export function wrapper({
 
   const idToWs = new Map<number, WebSocket2>(); // id -> ws
 
+  const PING_INTERVAL_MS = 1000;
+  setInterval(() => {
+    const serverNow = Date.now();
+    for (const ws of idToWs.values()) {
+      ws.send({ op: 'ping', serverNow });
+    }
+  }, PING_INTERVAL_MS);
+
   /**
    * Sends a message to everyone in the server (optionally but one)
    *
@@ -119,12 +127,31 @@ export function wrapper({
         onJoin(ws as any as WebSocket2);
       },
 
-      message: (ws: WebSocket, message: any, isBinary: boolean) => {
-        if (!isBinary) {
-          return; // console.warn(`ignored non-binary incoming message: ${ab2str(message)}`);
-        }
+      message: (_ws: WebSocket, message: any, isBinary: boolean) => {
+        if (!isBinary) return; // we expect all incoming messages to be binary msgpack encoded
 
-        onMessage(ws as any as WebSocket2, unpack(Buffer.from(message)));
+        const ws = _ws as any as WebSocket2;
+        const data = unpack(Buffer.from(message));
+
+        if (typeof data !== 'object' || !data.op) return;
+        
+        switch (data.op) {
+          case 'pong':
+            {
+              const serverNow2 = Date.now();
+              const { serverNow, clientNow } = data as {
+                serverNow: number;
+                clientNow: number;
+              };
+              const rttOver2 = clientNow - serverNow;
+              const rttOver2_ = serverNow2 - clientNow;
+              const rtt = rttOver2 + rttOver2_;
+              console.warn(`pong id:${ws.id}, rtt:${rtt}`);
+            }
+            break;
+          default:
+            onMessage(ws, data);
+        }
       },
 
       /* drain: (ws) => {

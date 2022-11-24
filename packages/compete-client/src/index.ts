@@ -5,6 +5,8 @@
 
 import { pack, unpack } from 'msgpackr';
 
+export type PingStats = { min: number; max: number; average: number };
+
 export type CompeteClientOptions = {
   /**
    * The address of the websocket server
@@ -61,6 +63,11 @@ export type CompeteClientAPI = {
    * gets the other player ids we know are in the same room as we are
    */
   getOtherIds(): number[];
+
+  /**
+   * returns the ping stats. numbers are RTT/2 in milliseconds
+   */
+  getPing(): PingStats;
 };
 
 /**
@@ -90,9 +97,12 @@ export function competeClient({
   let myId: number;
   const otherIds: Set<number> = new Set();
 
-  function sendMsg(msg: any): boolean {
+  const PING_MAX_ITEMS = 5;
+  const pingReadings: number[] = [];
+
+  function sendMsg(msg: any, doNotQueue = false): boolean {
     if (!ws.OPEN) {
-      queuedMessages.push(msg);
+      if (!doNotQueue) queuedMessages.push(msg);
       return false;
     } else {
       ws.send(pack(msg));
@@ -118,7 +128,19 @@ export function competeClient({
   ws.addEventListener('message', (ev: any) => {
     const data = unpack(new Uint8Array(ev.data));
 
+    if (typeof data !== 'object' || !data.op) return;
+
     switch (data.op) {
+      case 'ping':
+        {
+          const serverNow = data.serverNow;
+          const clientNow = Date.now();
+          const rttOver2 = clientNow - serverNow;
+          pingReadings.unshift(rttOver2);
+          if (pingReadings.length > PING_MAX_ITEMS) pingReadings.pop();
+          sendMsg({ op: 'pong', serverNow, clientNow }, true);
+        }
+        break;
       case 'my-id':
         myId = data.id;
         break;
@@ -152,6 +174,14 @@ export function competeClient({
     },
     getOtherIds(): number[] {
       return Array.from(otherIds);
+    },
+    getPing(): PingStats {
+      const min = Math.min(...pingReadings);
+      const max = Math.max(...pingReadings);
+      const average =
+        pingReadings.reduce((prev, curr) => prev + curr, 0) /
+        pingReadings.length;
+      return { min, max, average };
     },
   };
 }
