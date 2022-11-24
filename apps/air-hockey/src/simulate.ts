@@ -15,9 +15,16 @@ import {
 } from './constants';
 import { V2 } from 'compete-utils';
 
-export function simulate(
-  updateOutputs: (positions: [V2, V2, V2], events: [string, any][]) => void,
-) {
+export type SimulateEvent = ['play', string] | ['update-scoreboard', V2];
+
+export type SimulateInput = [V2, V2];
+export type SimulateOutput = {
+  positions: [V2, V2, V2];
+  events: SimulateEvent[];
+};
+export type SimulateFn = (input: SimulateInput) => SimulateOutput;
+
+export function simulate(): SimulateFn {
   const scoreboard = [0, 0];
 
   const engine = Engine.create();
@@ -27,8 +34,6 @@ export function simulate(
   //engine.velocityIterations = 2; // 4 is default
 
   let resetPuck = false;
-
-  type SimEvent = [string, any];
 
   function play(sampleName: string) {
     eventsToSend.push(['play', sampleName]);
@@ -158,7 +163,7 @@ export function simulate(
 
   const p1 = [0, 0.33 * tableDims[1]];
   const p2 = [0, -0.33 * tableDims[1]];
-  let eventsToSend: SimEvent[] = [];
+  let eventsToSend: SimulateEvent[] = [];
 
   //let frameNo = 0;
   //const MAX_LENGTH = 60;
@@ -173,19 +178,18 @@ export function simulate(
     return [v.x, v.y];
   }
 
-  setInterval(() => {
-    //inputs.push(currentInput);
-    //currentInput = [];
-    //if (inputs.length > MAX_LENGTH) inputs.shift();
+  //setInterval(() => {
+  //inputs.push(currentInput);
+  //currentInput = [];
+  //if (inputs.length > MAX_LENGTH) inputs.shift();
 
-    Engine.update(engine, 1000 / fps);
-    //++frameNo;
-    //frames.push(currentFrame);
-    //currentFrame = [];
-    //if (frames.length > MAX_LENGTH) frames.shift();
+  //++frameNo;
+  //frames.push(currentFrame);
+  //currentFrame = [];
+  //if (frames.length > MAX_LENGTH) frames.shift();
 
-    //if (frameNo === 180) debugger;
-  }, 1000 / fps);
+  //if (frameNo === 180) debugger;
+  //}, 1000 / fps);
 
   /* function restoreBody(body: Body, backup: any) {
     Body.setAngularVelocity(body, backup.angularVelocity);
@@ -217,10 +221,6 @@ export function simulate(
     backupBody(puckBd);
     backupBody(pusher1Bd);
     backupBody(pusher2Bd);
-
-    updateOutputs(currentFrame as [V2, V2, V2], eventsToSend);
-    currentFrame = [];
-    eventsToSend = [];
   });
 
   const VEL_FACTOR = 0.4;
@@ -279,12 +279,23 @@ export function simulate(
     }
   });
 
-  function updateInputs(_p1: V2, _p2: V2) {
-    p1[0] = _p1[0];
-    p1[1] = _p1[1];
-    p2[0] = _p2[0];
-    p2[1] = _p2[1];
-  }
+  return function doStep(input: SimulateInput): SimulateOutput {
+    const [a, b] = input;
+    p1[0] = a[0];
+    p1[1] = a[1];
+    p2[0] = b[0];
+    p2[1] = b[1];
 
-  return updateInputs;
+    Engine.update(engine, 1000 / fps);
+
+    const output = {
+      positions: currentFrame as [V2, V2, V2],
+      events: eventsToSend,
+    };
+
+    currentFrame = [];
+    eventsToSend = [];
+
+    return output;
+  };
 }

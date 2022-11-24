@@ -45,10 +45,7 @@ function fakePlayer() {
     const x = frameNo * 0.02;
     const r0 = n2d(x, 0) - 0.5;
     const r1 = n2d(x, 1) - 0.5;
-    p2 = [
-      tableDims[0] * (0.5 + 0.95 * r0),
-      tableDims[1] * (-0.25 + 0.52 * r1),
-    ];
+    p2 = [tableDims[0] * (0.5 + 0.95 * r0), tableDims[1] * (-0.25 + 0.52 * r1)];
     ++frameNo;
   }, 1000 / fps);
 }
@@ -90,7 +87,15 @@ app.stage.addChild(ctn);
 app.stage.cursor = 'none';
 app.stage.interactive = true;
 
-function updateOutputs(positions, events) {
+const doStep = simulate();
+
+app.stage.on('pointermove', (ev) => {
+  const pos = ev.data.global;
+  p1 = [pos.x - W2, pos.y - H2];
+});
+
+setInterval(() => {
+  const { positions, events } = doStep([p1, p2]);
   const [puckPos, pusher1Pos, pusher2Pos] = positions;
   puckSp.position.set(puckPos[0], puckPos[1]);
   pusher1Sp.position.set(pusher1Pos[0], pusher1Pos[1]);
@@ -100,15 +105,4 @@ function updateOutputs(positions, events) {
     if (ev === 'play') gameSfx.get(val)?.play();
     else if (ev === 'update-scoreboard') console.log(`score:`, val);
   }
-}
-
-const updateInputs = simulate(updateOutputs);
-
-app.stage.on('pointermove', (ev) => {
-  const pos = ev.data.global;
-  p1 = [pos.x - W2, pos.y - H2];
-});
-
-setInterval(() => {
-  updateInputs(p1, p2);
 }, 1000 / fps);
