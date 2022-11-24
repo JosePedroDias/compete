@@ -228,16 +228,24 @@ export function roomWrapper<St>({
     onJoin(ws) {
       const room = joinRoom(ws);
       if (room) {
+        ws.send({ op: 'my-id', id: ws.id });
+        for (const otherWs of room.participants) {
+          if (otherWs === ws) continue;
+          ws.send({ op: 'other-id-joined', id: otherWs.id });
+        }
+        room.broadcast({ op: 'other-id-joined', id: ws.id }, ws);
         onJoin(ws, room);
       } else {
         const err = `Server has no capability of spawning more than ${roomOpts.maxRooms} rooms!`;
         console.log(err);
-        ws.send({ op: 'server-full', text: err });
+        ws.send({ op: 'error-server-full', text: err });
       }
     },
     onLeave(ws, code) {
       const room = leaveRoom(ws);
-      room && onLeave(ws, room, code);
+      if (!room) return;
+      room.broadcast({ op: 'other-id-left', id: ws.id }, ws);
+      onLeave(ws, room, code);
     },
     onMessage(ws, message) {
       const room = idToRoom.get(ws.id);

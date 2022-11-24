@@ -51,6 +51,16 @@ export type CompeteClientAPI = {
    * by default outgoing messages get queued for sending once the connection is restored. call this to discard them
    */
   discardQueuedMessages(): void;
+
+  /**
+   * gets our own unique id in the server
+   */
+  getId(): number;
+
+  /**
+   * gets the other player ids we know are in the same room as we are
+   */
+  getOtherIds(): number[];
 };
 
 /**
@@ -77,6 +87,8 @@ export function competeClient({
   const ws: WebSocket = connect();
 
   let queuedMessages: any[] = [];
+  let myId: number;
+  const otherIds: Set<number> = new Set();
 
   function sendMsg(msg: any): boolean {
     if (!ws.OPEN) {
@@ -105,7 +117,24 @@ export function competeClient({
 
   ws.addEventListener('message', (ev: any) => {
     const data = unpack(new Uint8Array(ev.data));
-    onMessage(data);
+
+    switch (data.op) {
+      case 'my-id':
+        myId = data.id;
+        break;
+      case 'other-id-joined':
+        otherIds.add(data.id);
+        break;
+      case 'other-id-left':
+        otherIds.delete(data.id);
+        break;
+      case 'error-server-full':
+        onError && onError(data.text);
+        ws.close();
+        break;
+      default:
+        onMessage(data);
+    }
   });
 
   return {
@@ -117,6 +146,12 @@ export function competeClient({
     },
     reconnect(): void {
       if (ws.readyState === WebSocket.CLOSED) connect();
+    },
+    getId(): number {
+      return myId;
+    },
+    getOtherIds(): number[] {
+      return Array.from(otherIds);
     },
   };
 }

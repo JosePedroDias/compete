@@ -1,5 +1,5 @@
 import { AirHockeyState } from './constants';
-import { roomWrapper, Room, Event, WebSocket2 } from 'compete-server';
+import { roomWrapper, Room, Event } from 'compete-server';
 import { V2 } from 'compete-utils';
 //import { simulate, SimulateFn, SimulateOutput } from './simulate';
 import { simulate /*, SimulateFn, SimulateOutput*/ } from './simulate-plain.js';
@@ -16,13 +16,6 @@ roomWrapper<AirHockeyState>({
     minPlayers: 2,
     maxPlayers: 2,
     tickRate: 60,
-  },
-  onJoin(ws: WebSocket2, room: Room) {
-    ws.send({ op: 'my-id', id: ws.id });
-    room.broadcast({ op: 'other-id', id: ws.id }, ws);
-  },
-  onLeave(ws: WebSocket2, room: Room, _code: number) {
-    room.broadcast({ op: 'player-left', id: ws.id }, ws);
   },
   onGameStart(room: Room) {
     console.log('onGameStart');
