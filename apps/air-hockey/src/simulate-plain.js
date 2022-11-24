@@ -21,8 +21,9 @@ export function simulate() {
   const engine = Engine.create();
   engine.gravity.y = 0;
   engine.gravity.x = 0;
-  //engine.positionIterations = 3; // 6 is default (lower = less precision but more lightweight?)
-  //engine.velocityIterations = 2; // 4 is default
+  
+  engine.positionIterations = 3; // 6 is default (lower = less precision but more lightweight?)
+  engine.velocityIterations = 2; // 4 is default
 
   let resetPuck = false;
 

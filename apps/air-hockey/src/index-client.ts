@@ -123,6 +123,8 @@ const ws = competeClient({
 
           for (const sample of st.sfxToPlay) gameSfx.get(sample)?.play();
           updateScore(st.scoreboard);
+
+          ws.send({ op: 'position', value: p1 }, true);
         }
         break;
       default:
@@ -138,10 +140,6 @@ const ws = competeClient({
     updateRoster(ws.getOtherIds().length);
   },
 });
-
-setInterval(() => {
-  ws.send({ op: 'position', value: p1 }, true);
-}, 1000 / fps);
 
 setInterval(() => {
   updatePing(ws.getPing());
