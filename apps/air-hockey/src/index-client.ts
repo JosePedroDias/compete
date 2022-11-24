@@ -95,7 +95,10 @@ const ws = competeClient({
     }
   },
   onStateChange(st: string) {
-    if (st === 'closed') process.exit(0);
+    console.log(`state is now ${st}`);
+  },
+  onRosterChange(kind: string, playerId: number) {
+    console.log(`${playerId} ${kind}`);
   },
 });
 

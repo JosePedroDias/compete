@@ -152,7 +152,14 @@ export function wrapper({
         const ws = _ws as any as WebSocket2;
 
         if (!isBinary) return; // we expect all incoming messages to be binary msgpack encoded
-        const data = unpack(Buffer.from(message));
+
+        let data;
+        try {
+          data = unpack(Buffer.from(message));
+        } catch (_) {
+          return;
+        }
+
         if (typeof data !== 'object' || !data.op) return;
 
         switch (data.op) {
@@ -181,8 +188,8 @@ export function wrapper({
       },
 
       /* drain: (ws) => {
-            console.log(`ws backpressure: ${ws.getBufferedAmount()}`);
-        }, */
+        console.log(`ws backpressure: ${ws.getBufferedAmount()}`);
+      }, */
 
       close: (_ws: WebSocket, code: any, _message: any) => {
         const ws = _ws as any as WebSocket2;

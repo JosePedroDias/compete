@@ -63,15 +63,17 @@ If you create games with compete I would love to know. Add the tag `compete-mp` 
 
 ## dependency references
 
-- [uws]()
-- [msgpack]()
-- [howler](https://github.com/goldfire/howler.js#documentation)
-- [matter](https://brm.io/matter-js/docs/)
-- pixi [1](https://pixijs.download/release/docs/index.html) [2](https://pixijs.io/guides/)
-- trig-fills https://github.com/strainer/trigfills
-- [simplex-noise](https://github.com/jwagner/simplex-noise.js)
-- [alea (rng)](https://github.com/coverslide/node-alea)
-
+- core packages:
+  - [uWebSockets.js](https://github.com/uNetworking/uWebSockets.js/) - the web/ws server
+  - [msgpackr](https://github.com/kriszyp/msgpackr) - MessagePack library
+- games:
+  - [ws](https://github.com/websockets/ws) - used for nodejs bots to use the compete client by setting `global.WebSocket`
+  - [howler](https://github.com/goldfire/howler.js#documentation) - music and sfx playback
+  - [matter](https://brm.io/matter-js/docs/) - physics engine
+  - pixi [1](https://pixijs.download/release/docs/index.html) [2](https://pixijs.io/guides/) - 2D graphics
+  - [trig-fills](https://github.com/strainer/trigfills) - to normalize trigonometry functions throughout servers and clients
+  - [alea](https://github.com/coverslide/node-alea) - random number generation with optional seed
+  - [simplex-noise](https://github.com/jwagner/simplex-noise.js) - for 2D and 3D simplex noise
 
 ## credits
 ### sprites
@@ -94,9 +96,13 @@ I tend to do `npm run dev` in a terminal and `npm run build-server && npm run ru
 
 - for the packages/repo:
   - review all games (since I changed several things)
+  - add support for people joining a running game
+  - if tickRate is omitted, onEvent should be used instead?
+  - add types to core messages and extend them in games?
+  - add roster/lag overlay to compete-utils
   - should make it easier to bootstrap for windows machines
   - my usage of turbo is suboptimal. errors aren't stopping pipelines so I rarely see them unless I call scripts manually
-  - add example nginx setup for https
+  - add example nginx setup and/or uws example for https
   - add example docker image
   - document a little better compete-client and compete-utils
   - would be great to have a basic sanity for example games

@@ -15,6 +15,11 @@ export type CompeteClientOptions = {
   address?: string;
 
   /**
+   * Will log incoming messages as warnings if true
+   */
+  logMessages?: boolean;
+
+  /**
    * This callback will be executed every time we receive a new message from the websocket server
    *
    * @param data
@@ -34,6 +39,11 @@ export type CompeteClientOptions = {
    * @param state
    */
   onStateChange?: (state: 'open' | 'closed') => void;
+
+  /**
+   * called if room participants join or leave
+   */
+  onRosterChange?: (kind: 'left' | 'joined', playerId: number) => void;
 };
 
 export type CompeteClientAPI = {
@@ -77,16 +87,22 @@ export type CompeteClientAPI = {
 export function competeClient({
   onMessage,
   onStateChange,
+  onRosterChange,
   onError,
   address,
+  logMessages,
 }: CompeteClientOptions): CompeteClientAPI {
   function connect() {
-    const ws = new WebSocket(
-      address ||
-        `${location.protocol === 'http:' ? 'ws:' : 'wss:'}//${
+    if (!address) {
+      if (typeof window === 'undefined') {
+        address = 'ws://localhost:9001';
+      } else {
+        address = `${location.protocol === 'http:' ? 'ws:' : 'wss:'}//${
           location.hostname
-        }:9001`,
-    );
+        }:9001`;
+      }
+    }
+    const ws = new WebSocket(address);
     ws.binaryType = 'arraybuffer'; // to get an arraybuffer instead of a blob
     return ws;
   }
@@ -126,9 +142,16 @@ export function competeClient({
   });
 
   ws.addEventListener('message', (ev: any) => {
-    const data = unpack(new Uint8Array(ev.data));
+    let data;
+    try {
+      data = unpack(new Uint8Array(ev.data));
+    } catch (_) {
+      return;
+    }
 
     if (typeof data !== 'object' || !data.op) return;
+
+    if (logMessages) console.warn(data);
 
     switch (data.op) {
       case 'ping':
@@ -146,9 +169,11 @@ export function competeClient({
         break;
       case 'other-id-joined':
         otherIds.add(data.id);
+        onRosterChange && onRosterChange('joined', data.id);
         break;
       case 'other-id-left':
         otherIds.delete(data.id);
+        onRosterChange && onRosterChange('left', data.id);
         break;
       case 'error-server-full':
         onError && onError(data.text);

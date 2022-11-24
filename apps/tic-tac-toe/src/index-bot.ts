@@ -98,4 +98,7 @@ const ws = competeClient({
   onStateChange(st: string) {
     if (st === 'closed') process.exit(0);
   },
+  onRosterChange(kind: string, _playerId: number) {
+    if (kind === 'left') process.exit(0);
+  }
 });

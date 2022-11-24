@@ -5,7 +5,85 @@ Be sure to visit the [docs](https://josepedrodias.github.io/compete/packages/com
 The example games you can find under the `apps` folder should help grasp how to design compete games.
 
 This package drives an http/ws server in nodejs which uses and serializes messages using message pack.
+The server is based on [uWebSockets.js](https://github.com/uNetworking/uWebSockets.js/).
+Message serialization is done with [msgpackr](https://github.com/kriszyp/msgpackr).
 
+## how to use
+
+Example guess game. This design is over-engineered as we don't need tick rate and batching events processing for a guess game. 😅
+Also not competitive. See actual example games for better examples. 🙏
+
+```ts
+import { roomWrapper } from 'compete-server';
+
+export type GuessState = {
+  target: number;
+  numberOfGuesses: number;
+  numberOfWins: number;
+  feedback: string[];
+};
+
+function intBetween1And100() {
+  return Math.floor( 100 * Math.random() + 1 );
+}
+
+// if you manage to define a type for your state, set it as the roomWrapper parameter
+roomWrapper<any>({
+  roomOpts: {
+    maxRooms: 3, // server only caters for up to 3 rooms at the same time
+    minPlayers: 2, // a game needs exactly 2 players
+    maxPlayers: 2,
+    tickRate: 2 // will process ticks twice per second
+  },
+  onGameStart(_room: Room) {
+    console.log('onGameStart');
+    return {
+      target: intBetween1And100(),
+      numberOfGuesses: 0,
+      numberOfWins: 0,
+      feedback: []
+    }
+  },
+  onGameEnd(_room: Room, _st: any) {
+    console.log('onGameEnd');
+  },
+  // notice that state updates only start happening once a game starts.
+  // the server can configure that to be at 1 player but most require 2 or more.
+  onGameTick(room: Room, _events: Event[], st: any) {
+    console.log('onGameTick');
+    for (const { data, from } of _events) {
+      switch (data.op) {
+        case 'guess':
+          {
+            const v = data.value;
+            ++st.numberOfGuesses;
+            let fb;
+            if (v < st.target) { fb = `${v} is too low`; }
+            else if (v > st.target) { fb = `${v} is too high`; }
+            else {
+              ++st.numberOfWins;
+              st.target = intBetween1And100();
+            }
+            st.feedback.push(fb);
+          }
+          break;
+        default:
+          console.log(`ignored unsupported opcode: ${data.op}`);
+      }
+    }
+
+    return st;
+  },
+  adaptState(st:any) {
+    return {
+      numberOfGuesses: st.numberOfGuesses;
+      feedback: st.feedback;
+    };
+  }
+});
+```
+
+TODO: explain purpose of events array - bulk process, potential place for throttling clients
 
 ## core opcodes
 

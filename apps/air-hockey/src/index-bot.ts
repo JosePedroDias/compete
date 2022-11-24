@@ -12,7 +12,6 @@ const n2d = createNoise2D(rng);
 global.WebSocket = WebSocket;
 
 //let st: any = undefined;
-let myId: number;
 let frameNo = 0;
 //let st:AirHockeyState;
 
@@ -20,15 +19,6 @@ const ws = competeClient({
   onMessage(msg: any) {
     //console.log('MSG', msg);
     switch (msg.op) {
-      case 'my-id':
-        myId = msg.id;
-        console.log(`id:${myId}`);
-        break;
-      case 'other-id':
-        break;
-      case 'player-left':
-        process.exit(0);
-        break;
       case 'update-state':
         //const st = msg.state as AirHockeyState;
         //console.log('st', st);
@@ -40,6 +30,9 @@ const ws = competeClient({
   },
   onStateChange(st: string) {
     if (st === 'closed') process.exit(0);
+  },
+  onRosterChange(_kind: string, _playerId: number) {
+    //if (_kind === 'left') process.exit(0);
   },
 });
 
