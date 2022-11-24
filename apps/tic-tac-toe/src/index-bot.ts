@@ -48,7 +48,7 @@ function play() {
 let timer: NodeJS.Timer;
 
 const ws = competeClient({
-  onMessage: (msg: any) => {
+  onMessage(msg: any) {
     switch (msg.op) {
       case 'announce':
         updateLabel(msg.message);
@@ -94,5 +94,8 @@ const ws = competeClient({
       default:
         console.warn(`unsupported opcode: ${msg.op}`);
     }
+  },
+  onStateChange(st: string) {
+    if (st === 'closed') process.exit(0);
   },
 });

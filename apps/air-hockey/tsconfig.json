@@ -7,6 +7,7 @@
         "types": ["node"],
         "moduleResolution": "Node",
         "strict": true,
+        "allowJs": true, // TODO TEMP
         "sourceMap": true,
         "resolveJsonModule": true,
         "isolatedModules": true,
@@ -28,6 +29,7 @@
     ],
     "exclude": [
         "node_modules", "dist",
-        "src/index-client.ts"
+        "src/index-client.ts",
+        "src/index-client0.ts"
     ],
 }

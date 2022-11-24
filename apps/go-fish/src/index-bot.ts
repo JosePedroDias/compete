@@ -26,7 +26,7 @@ function play() {
 }
 
 const ws = competeClient({
-  onMessage: (msg: any) => {
+  onMessage(msg: any) {
     //console.log('MSG', msg);
     switch (msg.op) {
       case 'my-id':
@@ -58,5 +58,8 @@ const ws = competeClient({
       default:
         console.warn(`unsupported opcode: ${msg.op}`);
     }
+  },
+  onStateChange(st: string) {
+    if (st === 'closed') process.exit(0);
   },
 });

@@ -1,3 +1,13 @@
+import { V2 } from 'compete-utils';
+
+export type AirHockeyState = {
+  signs: [number, number]; // positive, negative
+  inputs: [V2, V2];
+  positions: [V2, V2, V2];
+  scoreboard: V2;
+  sfxToPlay: string[];
+};
+
 export const puckR = 28;
 export const pusherR = 46;
 

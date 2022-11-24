@@ -1,12 +1,11 @@
 import WebSocket from 'ws';
+import Alea from 'alea';
+import { createNoise2D } from 'simplex-noise';
 
 import { competeClient } from 'compete-client';
 import { tableDims, fps } from './constants';
 
-import Alea from 'alea';
 const rng = Alea();
-
-import { createNoise2D } from 'simplex-noise';
 const n2d = createNoise2D(rng);
 
 // @ts-ignore
@@ -15,9 +14,10 @@ global.WebSocket = WebSocket;
 //let st: any = undefined;
 let myId: number;
 let frameNo = 0;
+//let st:AirHockeyState;
 
 const ws = competeClient({
-  onMessage: (msg: any) => {
+  onMessage(msg: any) {
     //console.log('MSG', msg);
     switch (msg.op) {
       case 'my-id':
@@ -27,31 +27,30 @@ const ws = competeClient({
       case 'other-id':
         break;
       case 'player-left':
-        console.warn(`player left: ${msg.id}`);
+        process.exit(0);
         break;
       case 'update-state':
-        //st = new GoFishState(msg.state as GoFishState);
+        //const st = msg.state as AirHockeyState;
         //console.log('st', st);
-        break;
-      case 'next-to-play':
-        if (msg.id === myId) {
-          //setTimeout(play, 2000);
-        }
+        //console.log(`score: ${st.scoreboard.join(':')}, positions: ${st.positions.join('|')}`);
         break;
       default:
         console.warn(`unsupported opcode: ${msg.op}`);
     }
   },
+  onStateChange(st: string) {
+    if (st === 'closed') process.exit(0);
+  },
 });
 
 setInterval(() => {
-  const x = frameNo * 0.025;
+  const x = frameNo * 0.02;
+  const r0 = n2d(x, 0) - 0.5;
+  const r1 = n2d(x, 1) - 0.5;
   const p2 = [
-    100 * (n2d(x, 0) - 0.5),
-    -0.5 * tableDims[1] + 100 * (n2d(x, 1) - 0.5),
+    tableDims[0] * (0.5 + 0.95 * r0),
+    tableDims[1] * (-0.25 + 0.52 * r1),
   ];
-
   ws.send({ op: 'position', value: p2 });
-
   ++frameNo;
 }, 1000 / fps);

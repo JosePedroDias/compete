@@ -1,9 +1,11 @@
 import { Application, Container, Sprite, Texture, utils } from 'pixi.js';
 import { Howl, Howler } from 'howler';
+import Alea from 'alea';
+import { createNoise2D } from 'simplex-noise';
 
-import { competeClient } from 'compete-client';
+import { tableDims, fps } from './constants';
 import { V2 } from 'compete-utils';
-import { tableDims, fps, AirHockeyState } from './constants';
+import { simulate } from './simulate';
 
 const W = 1024;
 const H = 1024;
@@ -11,6 +13,7 @@ const W2 = W / 2;
 const H2 = H / 2;
 
 let p1: V2 = [0, 0.5 * tableDims[1]];
+let p2: V2 = [0, -0.5 * tableDims[1]];
 
 utils.skipHello();
 
@@ -32,6 +35,21 @@ function loadResources() {
 loadResources();
 
 Howler.volume(0.6);
+
+function fakePlayer() {
+  const rng = Alea();
+  const n2d = createNoise2D(rng);
+  let frameNo = 0;
+
+  setInterval(() => {
+    const x = frameNo * 0.02;
+    const r0 = n2d(x, 0) - 0.5;
+    const r1 = n2d(x, 1) - 0.5;
+    p2 = [tableDims[0] * (0.5 + 0.95 * r0), tableDims[1] * (-0.25 + 0.52 * r1)];
+    ++frameNo;
+  }, 1000 / fps);
+}
+fakePlayer();
 
 const app = new Application({
   width: W,
@@ -69,44 +87,22 @@ app.stage.addChild(ctn);
 app.stage.cursor = 'none';
 app.stage.interactive = true;
 
+const doStep = simulate();
+
 app.stage.on('pointermove', (ev) => {
   const pos = ev.data.global;
   p1 = [pos.x - W2, pos.y - H2];
 });
 
-let myId: number;
-
-const ws = competeClient({
-  onMessage(msg: any) {
-    switch (msg.op) {
-      case 'my-id':
-        myId = msg.id;
-        console.log(`id:${myId}`);
-        break;
-      case 'other-id':
-        break;
-      case 'update-state':
-        {
-          const st = msg.state as AirHockeyState;
-          const [puckPos, pusher1Pos, pusher2Pos] = st.positions;
-          puckSp.position.set(puckPos[0], puckPos[1]);
-          pusher1Sp.position.set(pusher1Pos[0], pusher1Pos[1]);
-          pusher2Sp.position.set(pusher2Pos[0], pusher2Pos[1]);
-
-          for (const sample of st.sfxToPlay) {
-            gameSfx.get(sample)?.play();
-          }
-        }
-        break;
-      default:
-        console.warn(`unsupported opcode: ${msg.op}`);
-    }
-  },
-  onStateChange(st: string) {
-    if (st === 'closed') process.exit(0);
-  },
-});
-
 setInterval(() => {
-  ws.send({ op: 'position', value: p1 });
+  const { positions, events } = doStep([p1, p2]);
+  const [puckPos, pusher1Pos, pusher2Pos] = positions;
+  puckSp.position.set(puckPos[0], puckPos[1]);
+  pusher1Sp.position.set(pusher1Pos[0], pusher1Pos[1]);
+  pusher2Sp.position.set(pusher2Pos[0], pusher2Pos[1]);
+
+  for (const [ev, val] of events) {
+    if (ev === 'play') gameSfx.get(val)?.play();
+    else if (ev === 'update-scoreboard') console.log(`score:`, val);
+  }
 }, 1000 / fps);
