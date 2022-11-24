@@ -100,5 +100,5 @@ const ws = competeClient({
   },
   onRosterChange(kind: string, _playerId: number) {
     if (kind === 'left') process.exit(0);
-  }
+  },
 });

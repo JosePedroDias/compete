@@ -50,9 +50,10 @@ export type CompeteClientAPI = {
   /**
    * Sends a message to the websocket server using message pack
    * @param msg the message to send
+   * @param doNotQueue if the message loses relevance with time, this param should be set as true
    * @returns true if message was sent immediately, false if it was queued for later
    */
-  send(msg: any): boolean;
+  send(msg: any, doNotQueue?: boolean): boolean;
 
   /**
    * call this to attempt resuming a closed connection
@@ -185,8 +186,8 @@ export function competeClient({
   });
 
   return {
-    send(msg: any): boolean {
-      return sendMsg(msg);
+    send(msg: any, doNotQueue = false): boolean {
+      return sendMsg(msg, doNotQueue);
     },
     discardQueuedMessages(): void {
       queuedMessages = [];

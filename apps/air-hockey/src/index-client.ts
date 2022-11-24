@@ -1,7 +1,7 @@
 import { Application, Container, Sprite, Texture, utils } from 'pixi.js';
 import { Howl, Howler } from 'howler';
 
-import { competeClient } from 'compete-client';
+import { competeClient, PingStats } from 'compete-client';
 import { V2 } from 'compete-utils';
 import { tableDims, fps, AirHockeyState } from './constants';
 
@@ -9,6 +9,42 @@ const W = 1024;
 const H = 1024;
 const W2 = W / 2;
 const H2 = H / 2;
+
+////
+
+// html hacky overlay
+const onlineStatusEl = document.getElementById('online-status') as HTMLElement;
+const rosterEl = document.getElementById('roster') as HTMLElement;
+const pingEl = document.getElementById('ping') as HTMLElement;
+const scoreEl = document.getElementById('score') as HTMLElement;
+function updateOnlineStatus(status: string) {
+  if (onlineStatusEl.firstChild)
+    onlineStatusEl.firstChild.nodeValue = status === 'open' ? 'yes' : 'no';
+}
+
+function updateRoster(othersCount: number) {
+  if (rosterEl.firstChild)
+    rosterEl.firstChild.nodeValue = othersCount ? 'with opponent' : 'alone';
+}
+
+function updatePing(ping: PingStats) {
+  if (pingEl.firstChild)
+    pingEl.firstChild.nodeValue = isNaN(ping.average)
+      ? '...'
+      : Object.entries(ping)
+          .map(
+            ([k, v]) =>
+              `${k === 'average' ? 'avg' : k}:${
+                k === 'average' ? v.toFixed(1) : v
+              }`,
+          )
+          .join(' ');
+}
+
+function updateScore(score: V2) {
+  if (scoreEl.firstChild) scoreEl.firstChild.nodeValue = score.join(' : ');
+}
+////
 
 let p1: V2 = [0, 0.5 * tableDims[1]];
 
@@ -85,9 +121,8 @@ const ws = competeClient({
           pusher1Sp.position.set(pusher1Pos[0], pusher1Pos[1]);
           pusher2Sp.position.set(pusher2Pos[0], pusher2Pos[1]);
 
-          for (const sample of st.sfxToPlay) {
-            gameSfx.get(sample)?.play();
-          }
+          for (const sample of st.sfxToPlay) gameSfx.get(sample)?.play();
+          updateScore(st.scoreboard);
         }
         break;
       default:
@@ -96,12 +131,18 @@ const ws = competeClient({
   },
   onStateChange(st: string) {
     console.log(`state is now ${st}`);
+    updateOnlineStatus(st);
   },
   onRosterChange(kind: string, playerId: number) {
     console.log(`${playerId} ${kind}`);
+    updateRoster(ws.getOtherIds().length);
   },
 });
 
 setInterval(() => {
-  ws.send({ op: 'position', value: p1 });
+  ws.send({ op: 'position', value: p1 }, true);
 }, 1000 / fps);
+
+setInterval(() => {
+  updatePing(ws.getPing());
+}, 2000);

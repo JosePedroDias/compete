@@ -35,11 +35,14 @@ and then let's fire both server and client
 
 ```
 npm run run-server &
+
+npm run dev
+or
 npm run run-serve-client
 ```
 
-You should now visit http://localhost:4173 which is serving the client code.  
-The multiplayer game server is running in [ws://localhost:9001](ws://localhost:9001).
+You should now visit http://localhost:5173 (if dev) or http://localhost:4173 (if not dev), which is serving the client code.  
+The multiplayer game server is running at [ws://localhost:9001](ws://localhost:9001).
 
 ℹ️ For most games there is a bot you can start one or multiple times by doing `npm run run-bot`. They tend to do dumb things but are useful nonetheless.
 
