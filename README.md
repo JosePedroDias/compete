@@ -102,6 +102,7 @@ I tend to do `npm run dev` in a terminal and `npm run build-server && npm run ru
   - add support for people joining a running game
   - if tickRate is omitted, onEvent should be used instead?
   - add types to core messages and extend them in games?
+  - add shared game/version string to handshake to validate connections and prevent bad traffic coming in
   - add roster/lag overlay to compete-utils
   - should make it easier to bootstrap for windows machines
   - my usage of turbo is suboptimal. errors aren't stopping pipelines so I rarely see them unless I call scripts manually
