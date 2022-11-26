@@ -96,7 +96,7 @@ If you create games with compete I would love to know. Add the tag `compete-mp` 
 ## TODO (subject to change)
 
 - for the packages/repo:
-  - review all games (since I changed several things)
+  - make cards loading be explicit (otherwise other games importing compete-utils try to loads all the card assets)
   - add support for people joining a running game
   - if tickRate is omitted, onEvent should be used instead?
   - add types to core messages and extend them in games?

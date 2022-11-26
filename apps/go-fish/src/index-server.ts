@@ -1,4 +1,4 @@
-import { roomWrapper, Room, Event, WebSocket2 } from 'compete-server';
+import { roomWrapper, Room, Event } from 'compete-server';
 import { GoFishState } from './GoFishState';
 
 roomWrapper<GoFishState>({
@@ -12,13 +12,6 @@ roomWrapper<GoFishState>({
     maxPlayers: 5,
     tickRate: 1,
   },
-  onJoin(ws: WebSocket2, room: Room) {
-    ws.send({ op: 'my-id', id: ws.id });
-    room.broadcast({ op: 'other-id', id: ws.id }, ws);
-  },
-  onLeave(ws: WebSocket2, room: Room, _code: number) {
-    room.broadcast({ op: 'player-left', id: ws.id }, ws);
-  },
   adaptState(st: GoFishState, id: number) {
     return st.getView(id);
   },
@@ -31,11 +24,6 @@ roomWrapper<GoFishState>({
       console.log(`next to play is ${st.nextToPlay[0]}`);
       room.broadcast({ op: 'next-to-play', id: st.nextToPlay[0] });
     }, 2000);
-
-    //console.log(st);
-
-    //st.nextToPlay.push(participants[0]);
-    //st.nextToPlay.push(participants[1]);
 
     return st;
   },

@@ -1,4 +1,4 @@
-import { roomWrapper, Room, Event, WebSocket2 } from 'compete-server';
+import { roomWrapper, Room, Event } from 'compete-server';
 
 import { T3Board, getBoard } from './T3Board';
 
@@ -12,13 +12,6 @@ roomWrapper<T3Board>({
     minPlayers: 2,
     maxPlayers: 2,
     tickRate: 2,
-  },
-  onJoin(ws: WebSocket2, room: Room) {
-    ws.send({ op: 'my-id', id: ws.id });
-    room.broadcast({ op: 'other-id', id: ws.id }, ws);
-  },
-  onLeave(ws: WebSocket2, room: Room) {
-    room.broadcast({ op: 'player-left', id: ws.id }, ws);
   },
   onGameStart(room: Room): T3Board {
     console.log('onGameStart');

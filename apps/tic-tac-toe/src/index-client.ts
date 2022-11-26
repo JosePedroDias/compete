@@ -29,7 +29,6 @@ document.body.appendChild(gridEl);
 
 const st: T3Board = getBoard();
 
-let myId: number;
 const ws = competeClient({
   onMessage: (msg) => {
     switch (msg.op) {
@@ -39,13 +38,6 @@ const ws = competeClient({
         break;
       case 'bad-move':
         console.warn(msg.message);
-        break;
-      case 'my-id':
-        myId = msg.id;
-        document.title = `id:${myId}`;
-        break;
-      case 'player-left':
-        console.warn(`player left: ${msg.id}`);
         break;
       case 'update-state':
         {

@@ -73,12 +73,6 @@ const { idToWs, broadcast } = wrapper({
     maxPayloadLength: 4 * 1024, // bytes?
     idleTimeout: 60, // secs?
   },
-  /* roomOpts: {
-    maxRooms: 1,
-    minPlayers: 2,
-    maxPlayers: 5,
-    tickRate: 2,
-  }, */
   onJoin(ws: WebSocket2) {
     ws.send({ op: 'own-id', id: ws.id });
     ws.send({ op: 'board-init', w: W, h: H });

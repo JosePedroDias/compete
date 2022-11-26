@@ -7,11 +7,10 @@ import { GoFishState } from './GoFishState';
 global.WebSocket = WebSocket;
 
 let st: GoFishState;
-let myId: number;
 
 function play() {
-  const myHand = st.getHand(myId);
-  const otherParticipantIds = st.participants.filter((id) => id !== myId);
+  const myHand = st.getHand(ws.getId());
+  const otherParticipantIds = st.participants.filter((id) => id !== ws.getId());
 
   console.log(`my hand: ${myHand.map((c) => c.toString()).join(', ')}`);
 
@@ -29,28 +28,19 @@ const ws = competeClient({
   onMessage(msg: any) {
     //console.log('MSG', msg);
     switch (msg.op) {
-      case 'my-id':
-        myId = msg.id;
-        console.log(`id:${myId}`);
-        break;
-      case 'other-id':
-        break;
-      case 'player-left':
-        console.warn(`player left: ${msg.id}`);
-        break;
       case 'update-state':
         st = new GoFishState(msg.state as GoFishState);
         //console.log('st', st);
         break;
       case 'next-to-play':
-        if (msg.id === myId) {
+        if (msg.id === ws.getId()) {
           setTimeout(play, 2000);
         }
         break;
       case 'ask2':
         {
           const { to, rank } = msg as { to: number; rank: string };
-          if (to === myId) {
+          if (to === ws.getId()) {
             console.log(`I was asked ${rank}s`);
           }
         }

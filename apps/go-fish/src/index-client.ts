@@ -31,7 +31,7 @@ let cardId: string;
 let participantId: number;
 
 function onCardClick(c: Card, _cv: Container) {
-  if (c.owner !== myId) {
+  if (c.owner !== ws.getId()) {
     console.log('ignore');
     return;
   }
@@ -48,25 +48,17 @@ function syncStateWithVisuals({ stockPile, hands }: GoFishState) {
   }
 }
 
-let myId: number;
 let st: GoFishState;
 const ws = competeClient({
   onMessage: (msg) => {
     switch (msg.op) {
-      case 'my-id':
-        myId = msg.id;
-        document.title = `id:${myId}`;
-        break;
-      case 'player-left':
-        console.warn(`player left: ${msg.id}`);
-        break;
       case 'update-state':
         if (!st) {
           st = new GoFishState(msg.state as GoFishState);
 
           // SEE PLAYER #N PERSPECTIVE
           const D_ANGLE = -360 / st.participants.length;
-          const currentPlayerIndex = st.participants.indexOf(myId);
+          const currentPlayerIndex = st.participants.indexOf(ws.getId());
           tableCtn.rotation = currentPlayerIndex * D_ANGLE * DEG_TO_RAD;
 
           syncStateWithVisuals(st);
@@ -75,12 +67,12 @@ const ws = competeClient({
         }
         break;
       case 'next-to-play':
-        if (msg.id === myId) console.log('Our time to play!');
+        if (msg.id === ws.getId()) console.log('Our time to play!');
         break;
       case 'ask2':
         {
           const { to, rank } = msg as { to: number; rank: string };
-          if (to === myId) {
+          if (to === ws.getId()) {
             console.log(`I was asked ${rank}s`);
           }
         }

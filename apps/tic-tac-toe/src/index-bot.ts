@@ -37,7 +37,6 @@ function updateGrid(pos: [number, number], o: { value: string }): void {
 }
 
 const st: T3Board = getBoard();
-let myId: number;
 
 function play() {
   const x = Math.floor(Math.random() * 3);
@@ -56,13 +55,6 @@ const ws = competeClient({
         break;
       case 'bad-move':
         console.warn(msg.message);
-        break;
-      case 'my-id':
-        myId = msg.id;
-        console.log(`id:${myId}`);
-        break;
-      case 'player-left':
-        console.warn(`player left: ${msg.id}`);
         break;
       case 'update-state':
         {
