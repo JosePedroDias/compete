@@ -12,6 +12,7 @@ export type {
   WrapperObj,
   AppOpts,
   WSOpts,
+  HttpRequest,
 } from './wrapper';
 
 export { getStats, getAppStats, getNodeStats } from './metrics';

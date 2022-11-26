@@ -17,6 +17,8 @@ import {
   decreaseNumConnections,
 } from './metrics';
 
+export type { HttpRequest } from 'uWebSockets.js';
+
 /**
  * AppOpts is the set of options internal uWebSockets expects
  */
@@ -78,6 +80,16 @@ export type WrapperObj = {
    */
   gameProtocol?: string;
 
+  /**
+   * define this function to prevent everyone from reading metrics (limit on host or shared secret header being present)
+   */
+  validateMetricsRequest?(req: HttpRequest): boolean;
+
+  /**
+   * define this function to prevent incoming game traffic from coming from unauthorized hosts (ex: 3rd party mirroring our game with ads)
+   */
+  validateWebsocketRequest?(req: HttpRequest): boolean;
+
   appOpts?: AppOpts;
   wsOpts: WSOpts;
 
@@ -105,6 +117,8 @@ export type WrapperObj = {
 export function wrapper({
   port = 9001,
   gameProtocol,
+  validateMetricsRequest,
+  validateWebsocketRequest,
   appOpts = {},
   wsOpts = {},
   onJoin,
@@ -148,6 +162,7 @@ export function wrapper({
   _App(appOpts)
     .ws('/*', {
       compression: SHARED_COMPRESSOR,
+      sendPingsAutomatically: false, // TODO TESTING
       ...wsOpts,
 
       // from https://github.com/uNetworking/uWebSockets.js/blob/master/examples/Upgrade.js
@@ -159,27 +174,37 @@ export function wrapper({
       ) {
         const url = req.getUrl();
         const receivedGameProtocol = url.substring(1);
+        let error: string | undefined;
 
-        if (gameProtocol && receivedGameProtocol !== gameProtocol) {
+        console.log('validateWebsocketRequest', validateWebsocketRequest);
+
+        if (validateWebsocketRequest && !validateWebsocketRequest(req)) {
+          console.log(
+            `prevented upgrade from unauthorized host ${req.getHeader(
+              'origin',
+            )}`,
+          );
+          error = 'unauthorized host';
+        } else if (gameProtocol && receivedGameProtocol !== gameProtocol) {
           console.log(
             `upgrade rejected (got '${receivedGameProtocol}' and expected '${gameProtocol}')`,
           );
-          res.writeHeader('content-type', 'text/plain');
-          res.writeStatus('403 Forbidden');
-          res.end(
-            '403 Forbidden - expected game protocol not found or incorrect',
-            true,
-          );
-          return;
+          error = 'game protocol not found or incorrect';
         }
 
-        res.upgrade(
-          { url },
-          req.getHeader('sec-websocket-key'),
-          req.getHeader('sec-websocket-protocol'),
-          req.getHeader('sec-websocket-extensions'),
-          context,
-        );
+        if (error) {
+          res.writeHeader('content-type', 'text/plain');
+          res.writeStatus('403 Forbidden');
+          res.end(`403 Forbidden - ${error}`, true);
+        } else {
+          res.upgrade(
+            { url },
+            req.getHeader('sec-websocket-key'),
+            req.getHeader('sec-websocket-protocol'),
+            req.getHeader('sec-websocket-extensions'),
+            context,
+          );
+        }
       },
 
       open(_ws: WebSocket) {
@@ -261,15 +286,22 @@ export function wrapper({
         onLeave(ws, code);
       },
     })
-    .get('/metrics', (res: HttpResponse, _req: HttpRequest) => {
-      res.writeHeader('content-type', 'application/json');
-      res.end(
-        JSON.stringify({
-          app: getAppStats(),
-          node: getNodeStats(),
-        }),
-        true,
-      );
+    .get('/metrics', (res: HttpResponse, req: HttpRequest) => {
+      if (!validateMetricsRequest || validateMetricsRequest(req)) {
+        res.writeHeader('content-type', 'application/json');
+        res.end(
+          JSON.stringify({
+            app: getAppStats(),
+            node: getNodeStats(),
+          }),
+          true,
+        );
+      } else {
+        console.log('prevented unauthorized metrics request.');
+        res.writeHeader('content-type', 'text/plain');
+        res.writeStatus('404 Not Found');
+        res.end('404 Not Found', true);
+      }
     })
     .any('/*', (res, _req) => {
       res.writeHeader('content-type', 'text/plain');

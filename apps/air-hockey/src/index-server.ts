@@ -1,5 +1,5 @@
 import { AirHockeyState, GAME_PROTOCOL } from './constants';
-import { roomWrapper, Room, Event } from 'compete-server';
+import { roomWrapper, Room, Event, HttpRequest } from 'compete-server';
 import { V2 } from 'compete-utils';
 //import { simulate, SimulateFn, SimulateOutput } from './simulate';
 import { simulate /*, SimulateFn, SimulateOutput*/ } from './simulate-plain.js';
@@ -8,16 +8,34 @@ const roomSims: Map<Room, any /*SimulateFn*/> = new Map();
 
 roomWrapper<AirHockeyState>({
   gameProtocol: GAME_PROTOCOL,
+
+  // curl 'http://127.0.0.1:9001/metrics' -H 'x-secret: 42'
+  validateMetricsRequest(req: HttpRequest): boolean {
+    return req.getHeader('x-secret') === '42';
+  },
+
+  validateWebsocketRequest(req: HttpRequest): boolean {
+    const validOrigins = [
+      'http://localhost:5173',
+      'http://localhost:4173',
+      'http://josepedrodias.com:5173',
+    ];
+    const origin = req.getHeader('origin');
+    return validOrigins.includes(origin);
+  },
+
   wsOpts: {
     maxPayloadLength: 4 * 1024, // bytes?
     idleTimeout: 60, // secs?
   },
+
   roomOpts: {
     maxRooms: 2,
     minPlayers: 2,
     maxPlayers: 2,
     tickRate: 60,
   },
+
   onGameStart(room: Room) {
     console.log('onGameStart');
 
@@ -38,10 +56,12 @@ roomWrapper<AirHockeyState>({
       sfxToPlay: [],
     };
   },
+
   onGameEnd(room: Room, _st: AirHockeyState) {
     console.log('onGameEnd');
     roomSims.delete(room);
   },
+
   onGameTick(room: Room, _events: Event[], st: AirHockeyState) {
     for (const { data, from } of _events) {
       switch (data.op) {
