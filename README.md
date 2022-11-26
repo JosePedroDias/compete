@@ -67,7 +67,7 @@ If you create games with compete I would love to know. Add the tag `compete-mp` 
 ## dependency references
 
 - core packages:
-  - [uWebSockets.js](https://github.com/uNetworking/uWebSockets.js/) - the web/ws server
+  - [uWebSockets.js](https://github.com/uNetworking/uWebSockets.js/) [docs](https://unetworking.github.io/uWebSockets.js/generated/) - the web/ws server
   - [msgpackr](https://github.com/kriszyp/msgpackr) - MessagePack library
 - games:
   - [ws](https://github.com/websockets/ws) - used for nodejs bots to use the compete client by setting `global.WebSocket`
@@ -103,12 +103,11 @@ I tend to do `npm run dev` in a terminal and `npm run build-server && npm run ru
   - if tickRate is omitted, onEvent should be used instead?
   - add types to core messages and extend them in games?
   - add shared game/version string to handshake to validate connections and prevent bad traffic coming in
-  - add roster/lag overlay to compete-utils
+  - improve lag metrics (isn't working well server and client are different machines)
   - should make it easier to bootstrap for windows machines
   - my usage of turbo is suboptimal. errors aren't stopping pipelines so I rarely see them unless I call scripts manually
   - add example nginx setup and/or uws example for https
   - add example docker image
-  - document a little better compete-client and compete-utils
   - would be great to have a basic sanity for example games
   - publish packages once we leave alpha
 - regarding example games:

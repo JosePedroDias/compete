@@ -4,9 +4,18 @@ import {
   WebSocket,
   SHARED_COMPRESSOR,
   CompressOptions,
+  HttpResponse,
+  HttpRequest,
 } from 'uWebSockets.js';
 
 import { pack, unpack } from 'msgpackr';
+
+import {
+  getNodeStats,
+  getAppStats,
+  increaseNumConnections,
+  decreaseNumConnections,
+} from './metrics';
 
 /**
  * AppOpts is the set of options internal uWebSockets expects
@@ -144,6 +153,8 @@ export function wrapper({
         idToWs.set(ws.id, ws);
         pingReadings.set(ws.id, []);
 
+        increaseNumConnections();
+
         //console.log(`ws open: ${ws.id}`);
         onJoin(ws);
       },
@@ -197,13 +208,27 @@ export function wrapper({
         idToWs.delete(ws.id);
         pingReadings.delete(ws.id);
 
+        decreaseNumConnections();
+
         //console.log(`ws closed ${ws.id} ok`);
         onLeave(ws, code);
       },
     })
-    /* .any('/*', (res, req) => {
-        res.end('Nothing to see here!');
-    }) */
+    .get('/metrics', (res: HttpResponse, _req: HttpRequest) => {
+      res.writeHeader('content-type', 'application/json');
+      res.end(
+        JSON.stringify({
+          app: getAppStats(),
+          node: getNodeStats(),
+        }),
+        true,
+      );
+    })
+    .any('/*', (res, _req) => {
+      res.writeHeader('content-type', 'text/plain');
+      res.writeStatus('404 Not Found');
+      res.end('404 Not Found', true);
+    })
     .listen(port, (token: any) => {
       if (token) {
         console.log(`Listening to port ${port}`);

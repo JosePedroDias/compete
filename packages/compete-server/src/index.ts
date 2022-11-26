@@ -13,3 +13,5 @@ export type {
   AppOpts,
   WSOpts,
 } from './wrapper';
+
+export { getStats, getAppStats, getNodeStats } from './metrics';

@@ -3,6 +3,8 @@ import { pack } from 'msgpackr';
 import { wrapper, WebSocket2, WrapperObj } from './wrapper';
 export type { WebSocket2 } from './wrapper';
 
+import { increaseNumRooms, decreaseNumRooms } from './metrics';
+
 /**
  * Defines the room options
  */
@@ -153,6 +155,7 @@ export function roomWrapper<St>({
       console.log('  creating new room');
       room = new Room();
       rooms.push(room);
+      increaseNumRooms();
     } else {
       console.log('  reusing room');
     }
@@ -206,7 +209,6 @@ export function roomWrapper<St>({
     room.participants = Array.from(room.idToWs.values());
 
     if (room.hasStarted && room.participants.length < roomOpts.minPlayers) {
-      //rooms.splice(rooms.indexOf(room), 1);
       clearInterval(room.timer);
       const st: St = gameStates.get(room) as St;
       room.hasStarted = false;
@@ -216,6 +218,7 @@ export function roomWrapper<St>({
     if (room.participants.length === 0) {
       console.log('  deleting room');
       rooms.splice(rooms.indexOf(room), 1);
+      decreaseNumRooms();
     }
 
     return room;
