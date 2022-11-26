@@ -4,6 +4,9 @@
     "build": {
       "outputs": []
     },
+    "build-client": {
+      "outputs": []
+    },
     "build-server": {
       "outputs": []
     },

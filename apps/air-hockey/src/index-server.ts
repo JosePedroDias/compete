@@ -16,9 +16,9 @@ roomWrapper<AirHockeyState>({
 
   validateWebsocketRequest(req: HttpRequest): boolean {
     const validOrigins = [
-      'http://localhost:5173',
-      'http://localhost:4173',
-      'http://josepedrodias.com:5173',
+      'http://localhost:4173', //
+      'http://localhost:5173', // dev
+      'http://josepedrodias.com:4173',
     ];
     const origin = req.getHeader('origin');
     return validOrigins.includes(origin);

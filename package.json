@@ -8,11 +8,12 @@
     "clean-node_modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
     "install-all": "for D in . packages/* apps/*; do (echo \"Installing ${D}\" && cd $D && npm install --silent); done",
     "clean-volatile": "git clean -fdx",
-    "all": "npm run format && npm run test && npm run build && npm run build-server && npm run docs",
+    "all": "npm run format && npm run test && npm run build && npm run build-client && npm run build-server && npm run docs",
     "format": "turbo run format",
     "test": "turbo run test",
     "build": "turbo run build",
-    "build-server": "turbo run build",
+    "build-client": "turbo run build-client",
+    "build-server": "turbo run build-server",
     "docs": "turbo run docs"
   },
   "devDependencies": {

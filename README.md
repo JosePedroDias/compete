@@ -27,24 +27,24 @@ To prepare a game do (using air-hockey as example):
 ```
 cd apps/air-hockey
 npm install
-npm run build
+npm run build-client
 npm run build-server
 ```
 
 and then let's fire both server and client
 
 ```
-npm run run-server &
+npm run serve-server &
 
 npm run dev
 or
-npm run run-serve-client
+npm run serve-client
 ```
 
 You should now visit http://localhost:5173 (if dev) or http://localhost:4173 (if not dev), which is serving the client code.  
 The multiplayer game server is running at [ws://localhost:9001](ws://localhost:9001).
 
-ℹ️ For most games there is a bot you can start one or multiple times by doing `npm run run-bot`. They tend to do dumb things but are useful nonetheless.
+ℹ️ For most games there is a bot you can start one or multiple times by doing `npm run bot`. They tend to do dumb things but are useful nonetheless.
 
 
 ## So what is it?
@@ -92,8 +92,6 @@ If you create games with compete I would love to know. Add the tag `compete-mp` 
 ## known bugs / limitations
 
 - bootstrap scripts assume POSIX machine
-- I have setup nodemon on game `package.json` with the purpose of refreshing both client and server code but it's not working.
-I tend to do `npm run dev` in a terminal and `npm run build-server && npm run run-server` in another one instead.
 
 ## TODO (subject to change)
 
