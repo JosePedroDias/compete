@@ -3,7 +3,7 @@ import Alea from 'alea';
 import { createNoise2D } from 'simplex-noise';
 
 import { competeClient } from 'compete-client';
-import { tableDims, fps } from './constants';
+import { tableDims, fps, GAME_PROTOCOL } from './constants';
 
 const rng = Alea();
 const n2d = createNoise2D(rng);
@@ -16,6 +16,7 @@ let frameNo = 0;
 //let st:AirHockeyState;
 
 const ws = competeClient({
+  gameProtocol: GAME_PROTOCOL,
   onMessage(msg: any) {
     //console.log('MSG', msg);
     switch (msg.op) {

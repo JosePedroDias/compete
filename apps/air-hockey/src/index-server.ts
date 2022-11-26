@@ -16,6 +16,7 @@ roomWrapper<AirHockeyState>({
 
   validateWebsocketRequest(req: HttpRequest): boolean {
     const validOrigins = [
+      '', // bot
       'http://localhost:4173', //
       'http://localhost:5173', // dev
       'http://192.168.1.3:4173', //

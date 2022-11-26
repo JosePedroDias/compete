@@ -75,7 +75,7 @@ const app = new Application({
   antialias: true,
   resolution: devicePixelRatio,
   autoDensity: true,
-  backgroundColor: 0xff333333,
+  backgroundColor: 0xff606060,
 });
 
 // @ts-ignore

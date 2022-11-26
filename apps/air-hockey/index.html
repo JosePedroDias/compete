@@ -12,7 +12,7 @@
         }
 
         body {
-          background-color: #333333;
+          background-color: #606060;
         }
 
         .overlay {
@@ -34,14 +34,22 @@
           margin-left: -300px;
           margin-top: -450px;
         }
+
+        .hidden {
+          display: none;
+        }
+
+        .italic {
+          font-style: italic;
+        }
     </style>
   </head>
   <body>
     <div class="overlay">
-      <div>click to hear sound</div>
       <div>online: <span id="online-status">_</span>, <span id="roster">alone</span></div>
-      <div>ping: <span id="ping">...</span></div>
+      <div class="hidden">ping: <span id="ping">...</span></div>
       <div>score: <span id="score">0 : 0</span></div>
+      <div class="italic">(click to hear sound)</div>
     </div>
 
     <script type="module" src="/src/index-client.ts"></script>
