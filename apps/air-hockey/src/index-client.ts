@@ -5,8 +5,8 @@ import { competeClient, PingStats } from 'compete-client';
 import { V2 } from 'compete-utils';
 import { tableDims, AirHockeyState, GAME_PROTOCOL } from './constants';
 
-const W = 1024;
-const H = 1024;
+const W = 600;
+const H = 900;
 const W2 = W / 2;
 const H2 = H / 2;
 

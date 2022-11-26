@@ -18,6 +18,8 @@ roomWrapper<AirHockeyState>({
     const validOrigins = [
       'http://localhost:4173', //
       'http://localhost:5173', // dev
+      'http://192.168.1.3:4173', //
+      'http://192.168.1.3:5173', // dev
       'http://josepedrodias.com:4173',
     ];
     const origin = req.getHeader('origin');

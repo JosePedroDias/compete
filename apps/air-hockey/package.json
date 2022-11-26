@@ -8,7 +8,7 @@
     "node": ">= 18"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0",
     "preview": "vite preview",
 
     "build-client": "tsc && vite build",

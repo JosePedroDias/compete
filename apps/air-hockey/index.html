@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <title>air hockey game</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=0.75" />
     <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <style>
         html, body {
@@ -11,7 +11,12 @@
             overflow: hidden;
         }
 
+        body {
+          background-color: #333333;
+        }
+
         .overlay {
+          z-index: 1;
           pointer-events: none;
           position: absolute;
           left: 0;
@@ -20,6 +25,14 @@
           font-family: monospace;
           font-size: 11px;
           padding: 8px;
+        }
+
+        canvas {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          margin-left: -300px;
+          margin-top: -450px;
         }
     </style>
   </head>
