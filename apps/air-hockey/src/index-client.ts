@@ -3,7 +3,7 @@ import { Howl, Howler } from 'howler';
 
 import { competeClient, PingStats } from 'compete-client';
 import { V2 } from 'compete-utils';
-import { tableDims, fps, AirHockeyState } from './constants';
+import { tableDims, AirHockeyState, GAME_PROTOCOL } from './constants';
 
 const W = 1024;
 const H = 1024;
@@ -111,6 +111,7 @@ app.stage.on('pointermove', (ev) => {
 });
 
 const ws = competeClient({
+  gameProtocol: GAME_PROTOCOL,
   onMessage(msg: any) {
     switch (msg.op) {
       case 'update-state':

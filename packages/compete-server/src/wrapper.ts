@@ -3,9 +3,9 @@ import {
   App,
   WebSocket,
   SHARED_COMPRESSOR,
-  CompressOptions,
   HttpResponse,
   HttpRequest,
+  us_socket_context_t,
 } from 'uWebSockets.js';
 
 import { pack, unpack } from 'msgpackr';
@@ -30,9 +30,12 @@ export type AppOpts = {
  * WS related uWebSockets options
  */
 export type WSOpts = {
-  compression?: CompressOptions;
   maxPayloadLength?: number;
   idleTimeout?: number;
+
+  //sendPingsAutomatically: boolean;
+  //ping: (ws: WebSocket, message: ArrayBuffer) => void
+  //pong: (ws: WebSocket, message: ArrayBuffer) => void
 };
 
 export type PingStats = { min: number; max: number; average: number };
@@ -67,16 +70,27 @@ export type WrapperObj = {
    * port number the server will use
    */
   port?: number;
+
+  /**
+   * shared game string both the server and client should use
+   * to prevent connections from outdated clients or clients from different games altogether.
+   * if the server has is set it will validate the client sends it.
+   */
+  gameProtocol?: string;
+
   appOpts?: AppOpts;
   wsOpts: WSOpts;
+
   /**
    * function that gets called every time a player joins
    */
   onJoin: (ws: WebSocket2) => void;
+
   /**
    * function that gets called every time a player sends a message
    */
   onMessage: (ws: WebSocket2, message: any) => void;
+
   /**
    * function that gets called every time a player leaves
    */
@@ -90,6 +104,7 @@ export type WrapperObj = {
  */
 export function wrapper({
   port = 9001,
+  gameProtocol,
   appOpts = {},
   wsOpts = {},
   onJoin,
@@ -135,7 +150,39 @@ export function wrapper({
       compression: SHARED_COMPRESSOR,
       ...wsOpts,
 
-      open: (_ws: WebSocket) => {
+      // from https://github.com/uNetworking/uWebSockets.js/blob/master/examples/Upgrade.js
+      // https://developer.mozilla.org/en-US/docs/Web/HTTP/Protocol_upgrade_mechanism
+      upgrade(
+        res: HttpResponse,
+        req: HttpRequest,
+        context: us_socket_context_t,
+      ) {
+        const url = req.getUrl();
+        const receivedGameProtocol = url.substring(1);
+
+        if (gameProtocol && receivedGameProtocol !== gameProtocol) {
+          console.log(
+            `upgrade rejected (got '${receivedGameProtocol}' and expected '${gameProtocol}')`,
+          );
+          res.writeHeader('content-type', 'text/plain');
+          res.writeStatus('403 Forbidden');
+          res.end(
+            '403 Forbidden - expected game protocol not found or incorrect',
+            true,
+          );
+          return;
+        }
+
+        res.upgrade(
+          { url },
+          req.getHeader('sec-websocket-key'),
+          req.getHeader('sec-websocket-protocol'),
+          req.getHeader('sec-websocket-extensions'),
+          context,
+        );
+      },
+
+      open(_ws: WebSocket) {
         // hydrate ws with additional attributes and methods
         _ws._send = _ws.send;
         _ws.send = (data: any) => _ws._send(pack(data), true);
@@ -159,7 +206,7 @@ export function wrapper({
         onJoin(ws);
       },
 
-      message: (_ws: WebSocket, message: any, isBinary: boolean) => {
+      message(_ws: WebSocket, message: any, isBinary: boolean) {
         const ws = _ws as any as WebSocket2;
 
         if (!isBinary) return; // we expect all incoming messages to be binary msgpack encoded
@@ -202,7 +249,7 @@ export function wrapper({
         console.log(`ws backpressure: ${ws.getBufferedAmount()}`);
       }, */
 
-      close: (_ws: WebSocket, code: any, _message: any) => {
+      close(_ws: WebSocket, code: any, _message: any) {
         const ws = _ws as any as WebSocket2;
 
         idToWs.delete(ws.id);

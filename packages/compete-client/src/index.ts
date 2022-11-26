@@ -9,6 +9,13 @@ export type PingStats = { min: number; max: number; average: number };
 
 export type CompeteClientOptions = {
   /**
+   * shared game string both the server and client should use
+   * to prevent connections from outdated clients or clients from different games altogether.
+   * if the server has is set it will validate the client sends it.
+   */
+  gameProtocol?: string;
+
+  /**
    * The address of the websocket server
    * Defaults to `ws(s)://(web server's hostname):9001`
    */
@@ -90,6 +97,7 @@ export function competeClient({
   onStateChange,
   onRosterChange,
   onError,
+  gameProtocol,
   address,
   logMessages,
 }: CompeteClientOptions): CompeteClientAPI {
@@ -103,7 +111,9 @@ export function competeClient({
         }:9001`;
       }
     }
-    const ws = new WebSocket(address);
+    const ws = new WebSocket(
+      `${address}${gameProtocol ? '/' + gameProtocol : ''}`,
+    );
     ws.binaryType = 'arraybuffer'; // to get an arraybuffer instead of a blob
     return ws;
   }
@@ -139,7 +149,12 @@ export function competeClient({
   });
 
   ws.addEventListener('error', (ev: any) => {
-    onError && onError(ev);
+    ev = 'websocket server not running or gameProtocol does not match?';
+    if (onError) {
+      onError(ev);
+    } else {
+      console.error(ev);
+    }
   });
 
   ws.addEventListener('message', (ev: any) => {

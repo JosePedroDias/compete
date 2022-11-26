@@ -1,5 +1,7 @@
 import { V2 } from 'compete-utils';
 
+export const GAME_PROTOCOL = 'air-hockey/0.0.1';
+
 export type AirHockeyState = {
   signs: [number, number]; // positive, negative
   inputs: [V2, V2];

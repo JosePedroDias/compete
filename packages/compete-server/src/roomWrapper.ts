@@ -128,6 +128,7 @@ const idToRoom = new Map<number, Room>();
  */
 export function roomWrapper<St>({
   port = 9001,
+  gameProtocol = undefined,
   appOpts = {},
   wsOpts = {},
   roomOpts = { maxRooms: 1, minPlayers: 1, maxPlayers: 16, tickRate: 10 },
@@ -226,6 +227,7 @@ export function roomWrapper<St>({
 
   return wrapper({
     port,
+    gameProtocol,
     appOpts,
     wsOpts,
     onJoin(ws) {

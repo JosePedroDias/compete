@@ -1,4 +1,4 @@
-import { AirHockeyState } from './constants';
+import { AirHockeyState, GAME_PROTOCOL } from './constants';
 import { roomWrapper, Room, Event } from 'compete-server';
 import { V2 } from 'compete-utils';
 //import { simulate, SimulateFn, SimulateOutput } from './simulate';
@@ -7,6 +7,7 @@ import { simulate /*, SimulateFn, SimulateOutput*/ } from './simulate-plain.js';
 const roomSims: Map<Room, any /*SimulateFn*/> = new Map();
 
 roomWrapper<AirHockeyState>({
+  gameProtocol: GAME_PROTOCOL,
   wsOpts: {
     maxPayloadLength: 4 * 1024, // bytes?
     idleTimeout: 60, // secs?
