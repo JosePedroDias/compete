@@ -176,8 +176,6 @@ export function wrapper({
         const receivedGameProtocol = url.substring(1);
         let error: string | undefined;
 
-        console.log('validateWebsocketRequest', validateWebsocketRequest);
-
         if (validateWebsocketRequest && !validateWebsocketRequest(req)) {
           console.log(
             `prevented upgrade from unauthorized host ${req.getHeader(
