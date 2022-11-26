@@ -13,7 +13,10 @@ import {
   goalWidth,
   goalWallWidth,
   fps,
+  limits,
+  VEL_FACTOR,
 } from './constants';
+import { inBounds2 } from 'compete-utils';
 
 export function simulate() {
   const scoreboard = [0, 0];
@@ -214,11 +217,7 @@ export function simulate() {
     backupBody(puckBd);
     backupBody(pusher1Bd);
     backupBody(pusher2Bd);
-  });
 
-  const VEL_FACTOR = 0.4;
-
-  Events.on(engine, 'afterUpdate', () => {
     Body.setVelocity(pusher1Bd, {
       x: VEL_FACTOR * (p1[0] - pusher1Bd.position.x),
       y: VEL_FACTOR * (p1[1] - pusher1Bd.position.y),
@@ -228,6 +227,9 @@ export function simulate() {
       x: VEL_FACTOR * (p2[0] - pusher2Bd.position.x),
       y: VEL_FACTOR * (p2[1] - pusher2Bd.position.y),
     });
+
+    const puckPos = currentFrame[0];
+    if (!inBounds2(puckPos, limits[0], limits[1])) resetPuck = true;
 
     //currentInput.push(p1);
     //currentInput.push(p2);

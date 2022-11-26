@@ -13,9 +13,16 @@ export type AirHockeyState = {
 export const puckR = 28;
 export const pusherR = 46;
 
-export const tableDims = [234, 381]; // half widths
+export const VEL_FACTOR = 0.4;
+
+export const tableDims: V2 = [234, 381]; // half widths
 export const goalWidth = 2 * tableDims[0] * 0.39;
 export const goalWallWidth = (2 * tableDims[0] - goalWidth) / 2;
 export const edgeR = 50;
+
+export const limits: [V2, V2] = [
+  [-tableDims[0] - pusherR, -tableDims[1] - pusherR],
+  [tableDims[0] + pusherR, tableDims[1] + pusherR],
+];
 
 export const fps = 30;
